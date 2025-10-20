@@ -1,29 +1,483 @@
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>signature asset test</title>
-  <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:24px;line-height:1.4}
-    h1{font-size:20px;margin:0 0 12px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:12px}
-    .card{border:1px solid #e5e7eb;border-radius:12px;padding:12px}
-    img{display:block;max-width:100%;height:auto}
-    code{background:#f3f4f6;padding:2px 6px;border-radius:6px}
-    .path{font-size:12px;color:#374151;word-break:break-all}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media:list Email Signature Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+        }
+        #loginScreen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        #mainApp {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <h1>Test souborů pro e‑mailový podpis</h1>
-  <div class="grid">
-    <div class="card"><div>Phone.png</div><img src="./Phone.png" alt="Phone.png"><div class="path">./Phone.png</div></div>
-    <div class="card"><div>Mail.png</div><img src="./Mail.png" alt="Mail.png"><div class="path">./Mail.png</div></div>
-    <div class="card"><div>LinkedIN.png</div><img src="./LinkedIN.png" alt="LinkedIN.png"><div class="path">./LinkedIN.png</div></div>
-    <div class="card"><div>web.png</div><img src="./web.png" alt="web.png"><div class="path">./web.png</div></div>
-    <div class="card"><div>ml_logo.png</div><img src="./ml_logo.png" alt="ml_logo.png"><div class="path">./ml_logo.png</div></div>
-    <div class="card"><div>profil/ML_1080x1080px_Kacena.png</div><img src="./profil/ML_1080x1080px_Kacena.png" alt="profil/ML_1080x1080px_Kacena.png"><div class="path">./profil/ML_1080x1080px_Kacena.png</div></div>
-  </div>
+    <!-- Přihlašovací obrazovka -->
+    <div id="loginScreen">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">🔐 Přihlášení</h1>
+                <p class="text-gray-600">Media:list Email Signature Generator</p>
+            </div>
+            
+            <form onsubmit="checkPassword(event)" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Heslo</label>
+                    <input 
+                        type="password" 
+                        id="passwordInput"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Zadej heslo"
+                        autofocus
+                    >
+                </div>
+                
+                <div id="errorMessage" class="hidden">
+                    <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                        ❌ Nesprávné heslo
+                    </div>
+                </div>
+                
+                <button 
+                    type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors"
+                >
+                    Přihlásit se
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center text-sm text-gray-500">
+                Pro přístup kontaktujte IT oddělení
+            </div>
+        </div>
+    </div>
+
+    <!-- Hlavní aplikace (skrytá do přihlášení) -->
+    <div id="mainApp" class="bg-gradient-to-br from-blue-50 to-gray-100 min-h-screen p-6">
+        <div class="max-w-7xl mx-auto">
+            <!-- Logout button -->
+            <div class="text-right mb-4">
+                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+                    🚪 Odhlásit se
+                </button>
+            </div>
+
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">Media:list Email Signature Generator</h1>
+                <p class="text-gray-600">Vytvoř profesionální e-mailový podpis</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-6">
+                <!-- Formulář -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">📝 Údaje zaměstnance</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Jméno</label>
+                                <input type="text" id="firstName" value="Tomáš" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Příjmení</label>
+                                <input type="text" id="lastName" value="Kačena"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pozice</label>
+                            <input type="text" id="position" value="CEO"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Telefon</label>
+                            <input type="text" id="phone" value="+420 777 668 928"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="+420 777 668 928">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
+                            <input type="email" id="email" value="tomas.kacena@media-list.cz"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="jmeno.prijmeni@media-list.cz">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">LinkedIn username</label>
+                            <input type="text" id="linkedin" value="tomaskacena"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="tomaskacena">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">📸 Název souboru fotky (bez diakritiky)</label>
+                            <input type="text" id="photoFilename" value="Kacena"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Kacena">
+                            <p class="text-xs text-gray-500 mt-1">CDN cesta: /profil/ML_1080x1080px_<span id="photoPreview">Kacena</span>.png</p>
+                        </div>
+
+                        <div class="flex items-center gap-3 pt-4 border-t">
+                            <input type="checkbox" id="darkMode" class="w-5 h-5 text-blue-600 rounded">
+                            <label for="darkMode" class="text-sm font-medium text-gray-700">🌙 Dark Mode varianta</label>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex gap-3">
+                        <button onclick="copyToClipboard()" 
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                            <span id="copyBtn">📋 Kopírovat HTML</span>
+                        </button>
+                        <button onclick="downloadHTML()"
+                            class="flex-1 bg-gray-700 hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                            💾 Stáhnout
+                        </button>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t">
+                        <h3 class="font-semibold text-gray-800 mb-3">📦 Hromadné generování</h3>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
+                            <input type="file" id="csvFile" accept=".csv" onchange="handleCSV(event)" class="hidden">
+                            <label for="csvFile" class="cursor-pointer">
+                                <div class="text-4xl mb-2">📤</div>
+                                <span class="text-sm text-gray-600">Nahraj CSV soubor se zaměstnanci</span>
+                            </label>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">Formát: Jméno,Příjmení,Pozice,Telefon,Email,LinkedIn,FotoSoubor</p>
+                        <div id="csvResult" class="mt-4"></div>
+                    </div>
+                </div>
+
+                <!-- Náhled -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">👁️ Náhled podpisu</h2>
+                    <div id="preview" class="border-2 rounded-lg p-6 bg-gray-50 border-gray-200"></div>
+                    
+                    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                        <h3 class="font-semibold text-blue-900 mb-2">💡 Návod na použití:</h3>
+                        <ol class="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+                            <li>Vyplň údaje zaměstnance</li>
+                            <li>Klikni na "Kopírovat HTML"</li>
+                            <li>V Gmailu: Nastavení → Podpis → vložit (Ctrl+V)</li>
+                            <li>V Outlooku: File → Options → Mail → Signatures</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technická specifikace -->
+            <div class="mt-6 bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">📚 Technická specifikace</h3>
+                <div class="grid md:grid-cols-3 gap-4 text-sm">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <div class="font-semibold text-gray-700 mb-2">✅ Kompatibilita</div>
+                        <ul class="text-gray-600 space-y-1">
+                            <li>• Gmail (web, iOS, Android)</li>
+                            <li>• Apple Mail (macOS, iOS)</li>
+                            <li>• Outlook (Win, Mac, web)</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <div class="font-semibold text-gray-700 mb-2">🎨 Design</div>
+                        <ul class="text-gray-600 space-y-1">
+                            <li>• Font: Arial, Helvetica</li>
+                            <li>• Barva: #0B64D8 (Media:list)</li>
+                            <li>• Rozměry: 140×140px foto</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <div class="font-semibold text-gray-700 mb-2">🔗 CDN Assets</div>
+                        <ul class="text-gray-600 space-y-1">
+                            <li>• cdn.medialist.cz</li>
+                            <li>• Retina-ready (2×)</li>
+                            <li>• Optimalizované PNG</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+      
+        const CORRECT_PASSWORD = "kockalezedirou"; 
+        
+        // Session timeout (30 minut v milisekundách)
+        const SESSION_TIMEOUT = 30 * 60 * 1000;
+        
+        // Kontrola existující session při načtení stránky
+        window.addEventListener('load', () => {
+            const sessionExpiry = localStorage.getItem('sessionExpiry');
+            if (sessionExpiry && Date.now() < parseInt(sessionExpiry)) {
+                showApp();
+            }
+        });
+
+        function checkPassword(event) {
+            event.preventDefault();
+            const password = document.getElementById('passwordInput').value;
+            
+            if (password === CORRECT_PASSWORD) {
+                // Nastav session expiry (30 minut od teď)
+                const expiry = Date.now() + SESSION_TIMEOUT;
+                localStorage.setItem('sessionExpiry', expiry.toString());
+                
+                showApp();
+            } else {
+                document.getElementById('errorMessage').classList.remove('hidden');
+                document.getElementById('passwordInput').value = '';
+                setTimeout(() => {
+                    document.getElementById('errorMessage').classList.add('hidden');
+                }, 3000);
+            }
+        }
+
+        function showApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            updatePreview();
+        }
+
+        function logout() {
+            localStorage.removeItem('sessionExpiry');
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('passwordInput').value = '';
+        }
+
+        // Auto-logout po timeoutu
+        setInterval(() => {
+            const sessionExpiry = localStorage.getItem('sessionExpiry');
+            if (!sessionExpiry || Date.now() >= parseInt(sessionExpiry)) {
+                logout();
+            }
+        }, 60000); // Kontrola každou minutu
+
+        // ===========================================
+        // GENERÁTOR PODPISŮ - STEJNÝ KÓD JAKO PŘEDTÍM
+        // ===========================================
+        
+        const inputs = ['firstName', 'lastName', 'position', 'phone', 'email', 'linkedin', 'photoFilename', 'darkMode'];
+        inputs.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('input', updatePreview);
+                element.addEventListener('change', updatePreview);
+            }
+        });
+
+        document.getElementById('photoFilename').addEventListener('input', (e) => {
+            document.getElementById('photoPreview').textContent = e.target.value;
+        });
+
+        function generateSignatureHTML() {
+            const data = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                position: document.getElementById('position').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                linkedin: document.getElementById('linkedin').value,
+                photoFilename: document.getElementById('photoFilename').value
+            };
+
+            const isDark = document.getElementById('darkMode').checked;
+            const bgColor = isDark ? '#1a1a1a' : '#ffffff';
+            const textColor = isDark ? '#e5e5e5' : '#222222';
+            const accentColor = '#0B64D8';
+
+            const phoneFormatted = data.phone.replace(/\s/g, '&nbsp;');
+            const phoneHref = data.phone.replace(/\s/g, '');
+
+            return `<!-- ====== EMAIL SIGNATURE · media:list · ${data.firstName} ${data.lastName} ====== -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;background:${bgColor};font-family:Arial,Helvetica,sans-serif;color:${textColor};">
+  <tr>
+    <td valign="top" style="padding:0 8px 8px 0;">
+      <img src="https://cdn.medialist.cz/profil/ML_1080x1080px_${data.photoFilename}.png"
+           width="140" height="140" alt="${data.firstName} ${data.lastName}"
+           style="display:block;border:0;outline:0;width:140px;height:140px;background:${bgColor};-ms-interpolation-mode:bicubic;">
+    </td>
+    <td valign="top" style="padding-top:15px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+        <tr>
+          <td style="font-size:22px;line-height:28px;font-weight:700;color:${textColor};padding:0 10px 6px 0;white-space:nowrap;">${data.firstName} ${data.lastName}</td>
+          <td style="font-size:22px;line-height:28px;font-weight:700;color:${accentColor};padding:0 0 6px 0;white-space:nowrap;">${data.position}</td>
+        </tr>
+      </table>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:15px;line-height:21px;color:${textColor};font-weight:400;mso-line-height-rule:exactly;">
+        <tr>
+          <td valign="middle" style="padding:2px 8px 2px 0;">
+            <img src="https://cdn.medialist.cz/Phone.png" width="22" height="22" alt="Telefon" style="display:block;width:22px;height:22px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
+          </td>
+          <td valign="middle" style="padding:2px 18px 2px 0;white-space:nowrap;">
+            <a href="tel:${phoneHref}" style="color:${textColor};text-decoration:none;">${phoneFormatted}</a>
+          </td>
+          <td valign="middle" style="padding:2px 8px 2px 0;">
+            <img src="https://cdn.medialist.cz/Mail.png" width="22" height="22" alt="E-mail" style="display:block;width:22px;height:22px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
+          </td>
+          <td valign="middle" style="padding:2px 0 2px 0;">
+            <a href="mailto:${data.email}" style="color:${textColor};text-decoration:none;">${data.email}</a>
+          </td>
+        </tr>
+      </table>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="1" style="border-collapse:collapse;">
+        <tr><td style="line-height:0;font-size:0;height:4px;">&nbsp;</td></tr>
+      </table>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:15px;line-height:21px;color:${textColor};font-weight:400;mso-line-height-rule:exactly;">
+        <tr>
+          <td valign="middle" style="padding:2px 8px 2px 0;">
+            <img src="https://cdn.medialist.cz/web.png" width="22" height="22" alt="Web" style="display:block;width:22px;height:22px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
+          </td>
+          <td valign="middle" style="padding:2px 18px 2px 0;">
+            <a href="https://medialist.cz" style="color:${textColor};text-decoration:none;">medialist.cz</a>
+          </td>
+          <td valign="middle" style="padding:2px 8px 2px 0;">
+            <img src="https://cdn.medialist.cz/LinkedIN.png" width="22" height="22" alt="LinkedIn" style="display:block;width:22px;height:22px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
+          </td>
+          <td valign="middle" style="padding:2px 0 2px 0;">
+            <a href="https://www.linkedin.com/in/${data.linkedin}/" style="color:${textColor};text-decoration:none;">linkedin.com/in/${data.linkedin}/</a>
+          </td>
+        </tr>
+      </table>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-top:6px;">
+        <tr>
+          <td style="padding:5px 0 0 0;">
+            <img src="https://cdn.medialist.cz/ml_logo.png" width="130" alt="media:list logo" style="display:block;border:0;outline:0;width:130px;height:auto;background:${bgColor};-ms-interpolation-mode:bicubic;">
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>`;
+        }
+
+        function updatePreview() {
+            const html = generateSignatureHTML();
+            const isDark = document.getElementById('darkMode').checked;
+            const preview = document.getElementById('preview');
+            preview.innerHTML = html;
+            preview.className = isDark 
+                ? 'border-2 rounded-lg p-6 bg-gray-900 border-gray-700'
+                : 'border-2 rounded-lg p-6 bg-gray-50 border-gray-200';
+        }
+
+        async function copyToClipboard() {
+            const html = generateSignatureHTML();
+            const btn = document.getElementById('copyBtn');
+            
+            try {
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        'text/html': new Blob([html], { type: 'text/html' }),
+                        'text/plain': new Blob([html], { type: 'text/plain' })
+                    })
+                ]);
+                btn.textContent = '✅ Zkopírováno!';
+                setTimeout(() => btn.textContent = '📋 Kopírovat HTML', 2000);
+            } catch (err) {
+                const textArea = document.createElement('textarea');
+                textArea.value = html;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                btn.textContent = '✅ Zkopírováno!';
+                setTimeout(() => btn.textContent = '📋 Kopírovat HTML', 2000);
+            }
+        }
+
+        function downloadHTML() {
+            const html = generateSignatureHTML();
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `signature_${firstName}_${lastName}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function handleCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target.result;
+                const lines = text.split('\n');
+                const employees = lines.slice(1)
+                    .filter(line => line.trim())
+                    .map(line => {
+                        const values = line.split(',').map(v => v.trim());
+                        return {
+                            firstName: values[0],
+                            lastName: values[1],
+                            position: values[2],
+                            phone: values[3],
+                            email: values[4],
+                            linkedin: values[5],
+                            photoFilename: values[6]
+                        };
+                    });
+
+                const resultDiv = document.getElementById('csvResult');
+                resultDiv.innerHTML = `
+                    <p class="text-sm text-green-600 font-medium mb-2">✓ Načteno ${employees.length} zaměstnanců</p>
+                    <button onclick="downloadAllFromCSV()" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                        💾 Stáhnout všechny podpisy
+                    </button>
+                `;
+
+                window.csvEmployees = employees;
+            };
+            reader.readAsText(file);
+        }
+
+        function downloadAllFromCSV() {
+            if (!window.csvEmployees) return;
+
+            window.csvEmployees.forEach(person => {
+                document.getElementById('firstName').value = person.firstName;
+                document.getElementById('lastName').value = person.lastName;
+                document.getElementById('position').value = person.position;
+                document.getElementById('phone').value = person.phone;
+                document.getElementById('email').value = person.email;
+                document.getElementById('linkedin').value = person.linkedin;
+                document.getElementById('photoFilename').value = person.photoFilename;
+
+                const html = generateSignatureHTML();
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `signature_${person.firstName}_${person.lastName}.html`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+            alert(`✅ Staženo ${window.csvEmployees.length} podpisů!`);
+        }
+    </script>
 </body>
 </html>
