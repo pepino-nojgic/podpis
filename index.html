@@ -1,0 +1,31 @@
+
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>signature asset test</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:24px;line-height:1.4}
+    h1{font-size:20px;margin:0 0 12px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:12px}
+    .card{border:1px solid #e5e7eb;border-radius:12px;padding:12px}
+    img{display:block;max-width:100%;height:auto}
+    code{background:#f3f4f6;padding:2px 6px;border-radius:6px}
+    .path{font-size:12px;color:#374151;word-break:break-all}
+  </style>
+</head>
+<body>
+  <h1>Test souborů pro e‑mailový podpis</h1>
+  <p>Nahraj celou tuto složku <code>signature/</code> na Netlify Drop. Po deploy otevři URL a ověř, že se všechny obrázky načítají. Cesty jsou case‑sensitive.</p>
+  <div class="grid">
+    <div class="card"><div>Phone.png</div><img src="./Phone.png" alt="Phone.png"><div class="path">./Phone.png</div></div>
+    <div class="card"><div>Mail.png</div><img src="./Mail.png" alt="Mail.png"><div class="path">./Mail.png</div></div>
+    <div class="card"><div>LinkedIN.png</div><img src="./LinkedIN.png" alt="LinkedIN.png"><div class="path">./LinkedIN.png</div></div>
+    <div class="card"><div>web.png</div><img src="./web.png" alt="web.png"><div class="path">./web.png</div></div>
+    <div class="card"><div>ml_logo.png</div><img src="./ml_logo.png" alt="ml_logo.png"><div class="path">./ml_logo.png</div></div>
+    <div class="card"><div>profil/ML_1080x1080px_Kacena.png</div><img src="./profil/ML_1080x1080px_Kacena.png" alt="profil/ML_1080x1080px_Kacena.png"><div class="path">./profil/ML_1080x1080px_Kacena.png</div></div>
+  </div>
+  <p>Pokud některý náhled chybí, soubor není ve stejné složce, jmenuje se jinak, nebo Netlify deploy neobsahuje podsložku <code>profil</code>.</p>
+</body>
+</html>
