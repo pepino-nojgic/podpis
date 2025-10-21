@@ -354,10 +354,17 @@
                     field.classList.add('input-invalid');
                     field.classList.remove('input-valid');
                     allValid = false;
-                } else if (id === 'phone' && val.replace(/\D/g, '').length < 9) {
-                    field.classList.add('input-invalid');
-                    field.classList.remove('input-valid');
-                    allValid = false;
+                } else if (id === 'phone') {
+                    // Musí být přesně 9 číslic
+                    const phoneDigits = val.replace(/\D/g, '');
+                    if (phoneDigits.length !== 9) {
+                        field.classList.add('input-invalid');
+                        field.classList.remove('input-valid');
+                        allValid = false;
+                    } else {
+                        field.classList.add('input-valid');
+                        field.classList.remove('input-invalid');
+                    }
                 } else {
                     field.classList.add('input-valid');
                     field.classList.remove('input-invalid');
@@ -374,20 +381,62 @@
         // ===========================================
         let photoCheckTimeout;
         function checkPhotoExists(filename) {
-            if (!filename) return;
+            if (!filename || !filename.trim()) {
+                document.getElementById('photoStatus').innerHTML = '';
+                return;
+            }
             clearTimeout(photoCheckTimeout);
             const status = document.getElementById('photoStatus');
             status.innerHTML = '<div class="spinner"></div> Kontroluji...';
             
-            photoCheckTimeout = setTimeout(() => {
-                const img = new Image();
-                img.onload = () => {
-                    status.innerHTML = '<span style="color:#10b981">✅ Fotka nalezena</span>';
-                };
-                img.onerror = () => {
-                    status.innerHTML = '<span style="color:#ef4444">⚠️ Fotka nenalezena</span>';
-                };
-                img.src = `https://cdn.medialist.cz/profil/ML_1080x1080px_${filename}.png?t=${Date.now()}`;
+            photoCheckTimeout = setTimeout(async () => {
+                const url = `https://cdn.medialist.cz/profil/ML_1080x1080px_${filename}.png`;
+                
+                try {
+                    const response = await fetch(url, { 
+                        method: 'HEAD',
+                        cache: 'no-cache'
+                    });
+                    
+                    if (response.ok && response.status === 200) {
+                        status.innerHTML = '<span style="color:#10b981">✅ Fotka nalezena na CDN</span>';
+                    } else {
+                        status.innerHTML = '<span style="color:#ef4444">⚠️ Fotka nenalezena - nahraj ji na CDN</span>';
+                    }
+                } catch (error) {
+                    // Pokud fetch selže (CORS apod.), zkus Image fallback
+                    const img = new Image();
+                    let loaded = false;
+                    let errored = false;
+                    
+                    img.onload = () => {
+                        if (!errored) {
+                            loaded = true;
+                            // Zkontroluj, jestli je to skutečný obrázek (ne error page)
+                            if (img.width > 0 && img.height > 0) {
+                                status.innerHTML = '<span style="color:#10b981">✅ Fotka nalezena na CDN</span>';
+                            } else {
+                                status.innerHTML = '<span style="color:#ef4444">⚠️ Fotka nenalezena - nahraj ji na CDN</span>';
+                            }
+                        }
+                    };
+                    
+                    img.onerror = () => {
+                        if (!loaded) {
+                            errored = true;
+                            status.innerHTML = '<span style="color:#ef4444">⚠️ Fotka nenalezena - nahraj ji na CDN</span>';
+                        }
+                    };
+                    
+                    // Timeout pokud se nic nestane
+                    setTimeout(() => {
+                        if (!loaded && !errored) {
+                            status.innerHTML = '<span style="color:#6b7280">💡 Nezapomeň nahrát fotku na CDN</span>';
+                        }
+                    }, 5000);
+                    
+                    img.src = url + '?t=' + Date.now();
+                }
             }, 800);
         }
 
