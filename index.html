@@ -346,23 +346,17 @@
                 if (!field) return;
                 const val = field.value.trim();
                 
+                // Prázdné pole
                 if (!val) {
                     field.classList.add('input-invalid');
                     field.classList.remove('input-valid');
                     allValid = false;
-                } else if (id === 'email' && !val.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-                    field.classList.add('input-invalid');
-                    field.classList.remove('input-valid');
-                    allValid = false;
-                } else if (id === 'phone') {
-                    // OPRAVA: Odstraň +420 prefix a pak počítej číslice
-                    let phoneDigits = val.replace(/\D/g, '');
-                    // Pokud začíná 420, odstraň to
-                    if (phoneDigits.startsWith('420')) {
-                        phoneDigits = phoneDigits.substring(3);
-                    }
-                    // Musí být přesně 9 číslic
-                    if (phoneDigits.length !== 9) {
+                    return;
+                }
+                
+                // Email validace
+                if (id === 'email') {
+                    if (!val.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
                         field.classList.add('input-invalid');
                         field.classList.remove('input-valid');
                         allValid = false;
@@ -370,10 +364,37 @@
                         field.classList.add('input-valid');
                         field.classList.remove('input-invalid');
                     }
-                } else {
-                    field.classList.add('input-valid');
-                    field.classList.remove('input-invalid');
+                    return;
                 }
+                
+                // Telefon validace - DŮLEŽITÉ: pouze číslice bez +420
+                if (id === 'phone') {
+                    // Extrahuj všechny číslice
+                    const allDigits = val.replace(/\D/g, '');
+                    
+                    // Odstraň +420 prefix
+                    let cleanDigits = allDigits;
+                    if (allDigits.startsWith('420') && allDigits.length > 9) {
+                        cleanDigits = allDigits.substring(3);
+                    }
+                    
+                    // Kontrola: přesně 9 číslic
+                    const isValid = cleanDigits.length === 9 && /^\d{9}$/.test(cleanDigits);
+                    
+                    if (isValid) {
+                        field.classList.add('input-valid');
+                        field.classList.remove('input-invalid');
+                    } else {
+                        field.classList.add('input-invalid');
+                        field.classList.remove('input-valid');
+                        allValid = false;
+                    }
+                    return;
+                }
+                
+                // Ostatní pole - jen neprázdnost
+                field.classList.add('input-valid');
+                field.classList.remove('input-invalid');
             });
             
             document.getElementById('copyBtn').disabled = !allValid;
@@ -545,8 +566,8 @@
             const phoneHref = data.phone.replace(/\D/g, '');
 
             const linkedInHTML = showLinkedIn && data.linkedin ? `
-          <td valign="middle" style="padding:2px 8px 2px 0;">
-            <img src="https://cdn.medialist.cz/LinkedIN.png" width="22" height="22" alt="LinkedIn" style="display:block;width:22px;height:22px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
+          <td valign="middle" style="padding:2px 6px 2px 0;">
+            <img src="https://cdn.medialist.cz/LinkedIN.png" width="17" height="17" alt="LinkedIn" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
           </td>
           <td valign="middle" style="padding:2px 0 2px 0;">
             <a href="https://www.linkedin.com/in/${data.linkedin}/" style="color:${textColor};text-decoration:none;">linkedin.com/in/${data.linkedin}/</a>
@@ -555,26 +576,26 @@
             return `<!-- EMAIL SIGNATURE · media:list · ${data.firstName} ${data.lastName} -->
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;background:${bgColor};font-family:Arial,Helvetica,sans-serif;color:${textColor};">
   <tr>
-    <td valign="top" style="padding:0 8px 8px 0;">
-      <img src="https://cdn.medialist.cz/profil/ML_1080x1080px_${data.photoFilename}.png" width="140" height="140" alt="${data.firstName} ${data.lastName}" style="display:block;border:0;outline:0;width:140px;height:140px;background:${bgColor};-ms-interpolation-mode:bicubic;">
+    <td valign="top" style="padding:0 6px 6px 0;">
+      <img src="https://cdn.medialist.cz/profil/ML_1080x1080px_${data.photoFilename}.png" width="105" height="105" alt="${data.firstName} ${data.lastName}" style="display:block;border:0;outline:0;width:105px;height:105px;background:${bgColor};-ms-interpolation-mode:bicubic;">
     </td>
-    <td valign="top" style="padding-top:15px;">
+    <td valign="top" style="padding-top:11px;">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
         <tr>
-          <td style="font-size:22px;line-height:28px;font-weight:700;color:${textColor};padding:0 10px 6px 0;white-space:nowrap;">${data.firstName} ${data.lastName}</td>
-          <td style="font-size:22px;line-height:28px;font-weight:700;color:${accentColor};padding:0 0 6px 0;white-space:nowrap;">${data.position}</td>
+          <td style="font-size:17px;line-height:21px;font-weight:700;color:${textColor};padding:0 8px 5px 0;white-space:nowrap;">${data.firstName} ${data.lastName}</td>
+          <td style="font-size:17px;line-height:21px;font-weight:700;color:${accentColor};padding:0 0 5px 0;white-space:nowrap;">${data.position}</td>
         </tr>
       </table>
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:15px;line-height:21px;color:${textColor};font-weight:400;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:11px;line-height:16px;color:${textColor};font-weight:400;mso-line-height-rule:exactly;">
         <tr>
-          <td valign="middle" style="padding:2px 8px 2px 0;">
-            <img src="https://cdn.medialist.cz/Phone.png" width="22" height="22" alt="Telefon" style="display:block;width:22px;height:22px;border:0;outline:0;">
+          <td valign="middle" style="padding:2px 6px 2px 0;">
+            <img src="https://cdn.medialist.cz/Phone.png" width="17" height="17" alt="Telefon" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
           </td>
-          <td valign="middle" style="padding:2px 18px 2px 0;white-space:nowrap;">
+          <td valign="middle" style="padding:2px 14px 2px 0;white-space:nowrap;">
             <a href="tel:+420${phoneHref}" style="color:${textColor};text-decoration:none;">${phoneDisplay}</a>
           </td>
-          <td valign="middle" style="padding:2px 8px 2px 0;">
-            <img src="https://cdn.medialist.cz/Mail.png" width="22" height="22" alt="E-mail" style="display:block;width:22px;height:22px;border:0;outline:0;">
+          <td valign="middle" style="padding:2px 6px 2px 0;">
+            <img src="https://cdn.medialist.cz/Mail.png" width="17" height="17" alt="E-mail" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
           </td>
           <td valign="middle" style="padding:2px 0 2px 0;">
             <a href="mailto:${data.email}" style="color:${textColor};text-decoration:none;">${data.email}</a>
@@ -582,22 +603,22 @@
         </tr>
       </table>
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="1" style="border-collapse:collapse;">
-        <tr><td style="line-height:0;font-size:0;height:4px;">&nbsp;</td></tr>
+        <tr><td style="line-height:0;font-size:0;height:3px;">&nbsp;</td></tr>
       </table>
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:15px;line-height:21px;color:${textColor};font-weight:400;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:11px;line-height:16px;color:${textColor};font-weight:400;mso-line-height-rule:exactly;">
         <tr>
-          <td valign="middle" style="padding:2px 8px 2px 0;">
-            <img src="https://cdn.medialist.cz/web.png" width="22" height="22" alt="Web" style="display:block;width:22px;height:22px;border:0;outline:0;">
+          <td valign="middle" style="padding:2px 6px 2px 0;">
+            <img src="https://cdn.medialist.cz/web.png" width="17" height="17" alt="Web" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
           </td>
-          <td valign="middle" style="padding:2px 18px 2px 0;">
+          <td valign="middle" style="padding:2px 14px 2px 0;">
             <a href="https://medialist.cz" style="color:${textColor};text-decoration:none;">medialist.cz</a>
           </td>${linkedInHTML}
         </tr>
       </table>
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-top:6px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-top:5px;">
         <tr>
-          <td style="padding:5px 0 0 0;">
-            <img src="https://cdn.medialist.cz/ml_logo.png" width="130" alt="media:list logo" style="display:block;border:0;outline:0;width:130px;height:auto;background:${bgColor};">
+          <td style="padding:4px 0 0 0;">
+            <img src="https://cdn.medialist.cz/ml_logo.png" width="98" alt="media:list logo" style="display:block;border:0;outline:0;width:98px;height:auto;background:${bgColor};-ms-interpolation-mode:bicubic;">
           </td>
         </tr>
       </table>
