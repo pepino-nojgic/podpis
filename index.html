@@ -355,8 +355,13 @@
                     field.classList.remove('input-valid');
                     allValid = false;
                 } else if (id === 'phone') {
+                    // OPRAVA: Odstraň +420 prefix a pak počítej číslice
+                    let phoneDigits = val.replace(/\D/g, '');
+                    // Pokud začíná 420, odstraň to
+                    if (phoneDigits.startsWith('420')) {
+                        phoneDigits = phoneDigits.substring(3);
+                    }
                     // Musí být přesně 9 číslic
-                    const phoneDigits = val.replace(/\D/g, '');
                     if (phoneDigits.length !== 9) {
                         field.classList.add('input-invalid');
                         field.classList.remove('input-valid');
@@ -385,58 +390,48 @@
                 document.getElementById('photoStatus').innerHTML = '';
                 return;
             }
+            
             clearTimeout(photoCheckTimeout);
             const status = document.getElementById('photoStatus');
             status.innerHTML = '<div class="spinner"></div> Kontroluji...';
             
-            photoCheckTimeout = setTimeout(async () => {
+            photoCheckTimeout = setTimeout(() => {
                 const url = `https://cdn.medialist.cz/profil/ML_1080x1080px_${filename}.png`;
+                const img = new Image();
+                let timeoutId;
+                let completed = false;
                 
-                try {
-                    const response = await fetch(url, { 
-                        method: 'HEAD',
-                        cache: 'no-cache'
-                    });
+                // Timeout po 8 sekundách
+                timeoutId = setTimeout(() => {
+                    if (!completed) {
+                        completed = true;
+                        status.innerHTML = '<span style="color:#6b7280">💡 Nezapomeň nahrát fotku na CDN</span>';
+                    }
+                }, 8000);
+                
+                img.onload = function() {
+                    if (completed) return;
+                    completed = true;
+                    clearTimeout(timeoutId);
                     
-                    if (response.ok && response.status === 200) {
+                    // Kontrola že je to skutečný obrázek (ne error page)
+                    // naturalWidth a naturalHeight jsou spolehlivější než width/height
+                    if (this.naturalWidth > 100 && this.naturalHeight > 100) {
                         status.innerHTML = '<span style="color:#10b981">✅ Fotka nalezena na CDN</span>';
                     } else {
                         status.innerHTML = '<span style="color:#ef4444">⚠️ Fotka nenalezena - nahraj ji na CDN</span>';
                     }
-                } catch (error) {
-                    // Pokud fetch selže (CORS apod.), zkus Image fallback
-                    const img = new Image();
-                    let loaded = false;
-                    let errored = false;
-                    
-                    img.onload = () => {
-                        if (!errored) {
-                            loaded = true;
-                            // Zkontroluj, jestli je to skutečný obrázek (ne error page)
-                            if (img.width > 0 && img.height > 0) {
-                                status.innerHTML = '<span style="color:#10b981">✅ Fotka nalezena na CDN</span>';
-                            } else {
-                                status.innerHTML = '<span style="color:#ef4444">⚠️ Fotka nenalezena - nahraj ji na CDN</span>';
-                            }
-                        }
-                    };
-                    
-                    img.onerror = () => {
-                        if (!loaded) {
-                            errored = true;
-                            status.innerHTML = '<span style="color:#ef4444">⚠️ Fotka nenalezena - nahraj ji na CDN</span>';
-                        }
-                    };
-                    
-                    // Timeout pokud se nic nestane
-                    setTimeout(() => {
-                        if (!loaded && !errored) {
-                            status.innerHTML = '<span style="color:#6b7280">💡 Nezapomeň nahrát fotku na CDN</span>';
-                        }
-                    }, 5000);
-                    
-                    img.src = url + '?t=' + Date.now();
-                }
+                };
+                
+                img.onerror = function() {
+                    if (completed) return;
+                    completed = true;
+                    clearTimeout(timeoutId);
+                    status.innerHTML = '<span style="color:#ef4444">⚠️ Fotka nenalezena - nahraj ji na CDN</span>';
+                };
+                
+                // Cache busting + časová známka
+                img.src = url + '?v=' + Date.now();
             }, 800);
         }
 
