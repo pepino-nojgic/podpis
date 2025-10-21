@@ -26,9 +26,68 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.8; }
         }
+        
+        /* Toast notifikace */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        .toast {
+            min-width: 300px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            background: white;
+        }
+        .toast.success { background: #10b981; color: white; }
+        .toast.error { background: #ef4444; color: white; }
+        .toast.warning { background: #f59e0b; color: white; }
+        .toast.info { background: #3b82f6; color: white; }
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Validace */
+        .input-valid { border-color: #10b981 !important; background-color: #f0fdf4; }
+        .input-invalid { border-color: #ef4444 !important; background-color: #fef2f2; }
+        
+        /* Photo status */
+        .photo-status {
+            font-size: 12px;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <!-- Přihlašovací obrazovka -->
     <div id="loginScreen">
         <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
@@ -100,58 +159,54 @@
                     <div class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Jméno</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Jméno *</label>
                                 <input type="text" id="firstName" value="Tomáš" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Příjmení</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Příjmení *</label>
                                 <input type="text" id="lastName" value="Kačena"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Pozice</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pozice *</label>
                             <input type="text" id="position" value="CEO"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="např. Marketing Manager">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Telefon</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Telefon *</label>
                             <input type="text" id="phone" value="777 668 928"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="777 123 456"
-                                maxlength="11">
-                            <p class="text-xs text-gray-500 mt-1">💡 Piš jen číslo, předvolba +420 se přidá automaticky</p>
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                placeholder="777 123 456">
+                            <p class="text-xs text-gray-500 mt-1">💡 Piš jen číslo, +420 se přidá automaticky</p>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">E-mail *</label>
                             <input type="email" id="email" value="tomas.kacena@media-list.cz"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="jmeno.prijmeni@media-list.cz">
-                            <p class="text-xs text-gray-500 mt-1">💡 Vyplní se automaticky podle jména</p>
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <p class="text-xs text-gray-500 mt-1">💡 Vyplní se automaticky</p>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">LinkedIn profil</label>
                             <input type="text" id="linkedin" value="tomaskacena"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="tvoje-jmeno">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                             <div class="flex items-center gap-2 mt-2">
                                 <input type="checkbox" id="showLinkedIn" checked class="w-4 h-4 text-blue-600 rounded">
-                                <label for="showLinkedIn" class="text-xs text-gray-600">Zobrazit LinkedIn v podpisu</label>
+                                <label for="showLinkedIn" class="text-xs text-gray-600">Zobrazit LinkedIn</label>
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">📸 Název tvé fotky</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">📸 Název fotky *</label>
                             <input type="text" id="photoFilename" value="Kacena"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="Prijmeni">
-                            <p class="text-xs text-gray-500 mt-1">💡 Vyplní se automaticky z příjmení (bez háčků)</p>
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <p class="text-xs text-gray-500 mt-1">💡 Vyplní se automaticky</p>
+                            <div id="photoStatus" class="photo-status"></div>
                         </div>
 
                         <div class="flex items-center gap-3 pt-4 border-t">
@@ -161,27 +216,32 @@
                     </div>
 
                     <div class="mt-6 flex gap-3">
-                        <button onclick="copyToClipboard()" 
-                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
-                            <span id="copyBtn">📋 Kopírovat</span>
+                        <button id="copyBtn" onclick="copyToClipboard()" 
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                            📋 Kopírovat
                         </button>
-                        <button onclick="downloadHTML()"
-                            class="flex-1 bg-gray-700 hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                        <button id="downloadBtn" onclick="downloadHTML()"
+                            class="flex-1 bg-gray-700 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors">
                             💾 Stáhnout
+                        </button>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <button onclick="clearSavedData()"
+                            class="w-full bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium py-2 px-4 rounded-lg transition-colors border border-red-200">
+                            🗑️ Vymazat uložená data
                         </button>
                     </div>
 
                     <div class="mt-6 pt-6 border-t">
                         <h3 class="font-semibold text-gray-800 mb-3">📦 Hromadné vytvoření</h3>
-                        <p class="text-sm text-gray-600 mb-3">Máš víc lidí? Nahraj CSV soubor se všemi údaji</p>
                         <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
                             <input type="file" id="csvFile" accept=".csv" onchange="handleCSV(event)" class="hidden">
                             <label for="csvFile" class="cursor-pointer">
                                 <div class="text-4xl mb-2">📤</div>
-                                <span class="text-sm text-gray-600">Klikni nebo přetáhni CSV soubor</span>
+                                <span class="text-sm text-gray-600">Nahraj CSV soubor</span>
                             </label>
                         </div>
-                        <p class="text-xs text-gray-500 mt-2">Formát: Jméno,Příjmení,Pozice,Telefon,Email,LinkedIn,Fotka</p>
                         <div id="csvResult" class="mt-4"></div>
                     </div>
                 </div>
@@ -190,7 +250,7 @@
                 <div class="lg:col-span-3 bg-white rounded-xl shadow-lg p-6">
                     <h2 class="text-2xl font-bold text-gray-800 mb-2">👁️ Náhled</h2>
                     <p class="text-sm text-gray-500 mb-6">Takhle bude tvůj podpis vypadat</p>
-                    <div id="preview" class="border-2 rounded-lg p-8 bg-gray-50 border-gray-200 overflow-auto"></div>
+                    <div id="preview" class="border-2 rounded-lg p-8 bg-gray-50 border-gray-200"></div>
                     
                     <div class="mt-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
                         <h3 class="font-semibold text-blue-900 mb-3">💡 Jak na to?</h3>
@@ -198,13 +258,13 @@
                             <p><strong>1.</strong> Vyplň své údaje výše</p>
                             <p><strong>2.</strong> Klikni na "Kopírovat"</p>
                             <p><strong>3.</strong> V Gmailu: Nastavení → Podpis → vlož (Ctrl+V)</p>
-                            <p><strong>4.</strong> V Outlooku: Soubor → Možnosti → Pošta → Podpisy</p>
+                            <p><strong>4.</strong> V Outlooku: Soubor → Možnosti → Podpisy</p>
                         </div>
                     </div>
 
                     <div class="mt-4 p-4 bg-green-50 rounded-lg">
                         <p class="text-sm text-green-800">
-                            <strong>💚 Tip:</strong> Podpis se automaticky aktualizuje, když změníš údaje. Vyzkoušej si různé varianty!
+                            <strong>💚 Smart:</strong> Data se ukládají automaticky. Pole s * jsou povinná.
                         </p>
                     </div>
                 </div>
@@ -218,16 +278,16 @@
                         <div class="font-semibold text-gray-700 mb-2">✅ Funguje všude</div>
                         <ul class="text-gray-600 space-y-1">
                             <li>• Gmail (web, mobil)</li>
-                            <li>• Apple Mail (Mac, iPhone)</li>
-                            <li>• Outlook (všude)</li>
+                            <li>• Apple Mail</li>
+                            <li>• Outlook</li>
                         </ul>
                     </div>
                     <div class="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-500">
                         <div class="font-semibold text-gray-700 mb-2">🎨 Design</div>
                         <ul class="text-gray-600 space-y-1">
-                            <li>• Firemní barvy Media:list</li>
-                            <li>• Arial font (kompatibilní)</li>
-                            <li>• Tvoje profilová fotka</li>
+                            <li>• Firemní barvy</li>
+                            <li>• Arial font</li>
+                            <li>• Tvoje fotka</li>
                         </ul>
                     </div>
                     <div class="p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
@@ -235,15 +295,15 @@
                         <ul class="text-gray-600 space-y-1">
                             <li>• Rychlé načítání</li>
                             <li>• Retina kvalita</li>
-                            <li>• Optimalizované obrázky</li>
+                            <li>• Optimalizované</li>
                         </ul>
                     </div>
                     <div class="p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500">
-                        <div class="font-semibold text-gray-700 mb-2">⚡ Auto-funkce</div>
+                        <div class="font-semibold text-gray-700 mb-2">⚡ Smart</div>
                         <ul class="text-gray-600 space-y-1">
-                            <li>• Email se vyplní sám</li>
-                            <li>• Telefon auto-formát</li>
-                            <li>• Live preview</li>
+                            <li>• Auto-validace</li>
+                            <li>• CDN kontrola</li>
+                            <li>• Auto-ukládání</li>
                         </ul>
                     </div>
                 </div>
@@ -252,177 +312,174 @@
             <!-- Footer -->
             <div class="mt-6 text-center text-sm text-gray-500">
                 <p>Vytvořeno s ❤️ pro tým Media:list</p>
-                <p class="mt-1">Máš problém? Napiš na IT oddělení</p>
             </div>
         </div>
     </div>
 
     <script>
-        // ===========================================
-        // HESLO - ZMĚŇ TOTO!
-        // ===========================================
+        // HESLO
         const CORRECT_PASSWORD = "medialist2025";
-        const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minut
+        const SESSION_TIMEOUT = 30 * 60 * 1000;
         
-        window.addEventListener('load', () => {
-            const sessionExpiry = localStorage.getItem('sessionExpiry');
-            if (sessionExpiry && Date.now() < parseInt(sessionExpiry)) {
-                showApp();
-            }
-        });
+        // ===========================================
+        // TOAST
+        // ===========================================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+            toast.innerHTML = `<span style="font-size:20px;">${icons[type]}</span><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
 
-        function checkPassword(event) {
-            event.preventDefault();
-            const password = document.getElementById('passwordInput').value;
+        // ===========================================
+        // VALIDACE
+        // ===========================================
+        function validateAllFields() {
+            const fields = ['firstName', 'lastName', 'position', 'phone', 'email', 'photoFilename'];
+            let allValid = true;
             
-            if (password === CORRECT_PASSWORD) {
-                const expiry = Date.now() + SESSION_TIMEOUT;
-                localStorage.setItem('sessionExpiry', expiry.toString());
-                showApp();
-            } else {
-                document.getElementById('errorMessage').classList.remove('hidden');
-                document.getElementById('passwordInput').value = '';
-                setTimeout(() => {
-                    document.getElementById('errorMessage').classList.add('hidden');
-                }, 3000);
+            fields.forEach(id => {
+                const field = document.getElementById(id);
+                if (!field) return;
+                const val = field.value.trim();
+                
+                if (!val) {
+                    field.classList.add('input-invalid');
+                    field.classList.remove('input-valid');
+                    allValid = false;
+                } else if (id === 'email' && !val.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                    field.classList.add('input-invalid');
+                    field.classList.remove('input-valid');
+                    allValid = false;
+                } else if (id === 'phone' && val.replace(/\D/g, '').length < 9) {
+                    field.classList.add('input-invalid');
+                    field.classList.remove('input-valid');
+                    allValid = false;
+                } else {
+                    field.classList.add('input-valid');
+                    field.classList.remove('input-invalid');
+                }
+            });
+            
+            document.getElementById('copyBtn').disabled = !allValid;
+            document.getElementById('downloadBtn').disabled = !allValid;
+            return allValid;
+        }
+
+        // ===========================================
+        // CDN KONTROLA
+        // ===========================================
+        let photoCheckTimeout;
+        function checkPhotoExists(filename) {
+            if (!filename) return;
+            clearTimeout(photoCheckTimeout);
+            const status = document.getElementById('photoStatus');
+            status.innerHTML = '<div class="spinner"></div> Kontroluji...';
+            
+            photoCheckTimeout = setTimeout(() => {
+                const img = new Image();
+                img.onload = () => {
+                    status.innerHTML = '<span style="color:#10b981">✅ Fotka nalezena</span>';
+                };
+                img.onerror = () => {
+                    status.innerHTML = '<span style="color:#ef4444">⚠️ Fotka nenalezena</span>';
+                };
+                img.src = `https://cdn.medialist.cz/profil/ML_1080x1080px_${filename}.png?t=${Date.now()}`;
+            }, 800);
+        }
+
+        // ===========================================
+        // LOCALSTORAGE
+        // ===========================================
+        function saveData() {
+            const data = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                position: document.getElementById('position').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                linkedin: document.getElementById('linkedin').value,
+                photoFilename: document.getElementById('photoFilename').value,
+                showLinkedIn: document.getElementById('showLinkedIn').checked,
+                darkMode: document.getElementById('darkMode').checked,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('mlSigData', JSON.stringify(data));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('mlSigData');
+            if (!saved) return false;
+            try {
+                const data = JSON.parse(saved);
+                if (Date.now() - data.timestamp > 7 * 24 * 60 * 60 * 1000) {
+                    localStorage.removeItem('mlSigData');
+                    return false;
+                }
+                document.getElementById('firstName').value = data.firstName || 'Tomáš';
+                document.getElementById('lastName').value = data.lastName || 'Kačena';
+                document.getElementById('position').value = data.position || 'CEO';
+                document.getElementById('phone').value = data.phone || '777 668 928';
+                document.getElementById('email').value = data.email || 'tomas.kacena@media-list.cz';
+                document.getElementById('linkedin').value = data.linkedin || 'tomaskacena';
+                document.getElementById('photoFilename').value = data.photoFilename || 'Kacena';
+                document.getElementById('showLinkedIn').checked = data.showLinkedIn !== false;
+                document.getElementById('darkMode').checked = data.darkMode || false;
+                return true;
+            } catch(e) {
+                return false;
             }
         }
 
-        function showApp() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            
-            // Automaticky vygeneruj email, fotku a naformátuj telefon při načtení
-            generateEmail();
-            generatePhotoFilename();
-            
-            updatePreview();
+        function clearSavedData() {
+            if(!confirm('Vymazat uložená data?')) return;
+            localStorage.removeItem('mlSigData');
+            location.reload();
         }
 
-        function logout() {
-            if (confirm('Opravdu se chceš odhlásit?')) {
-                localStorage.removeItem('sessionExpiry');
-                document.getElementById('loginScreen').style.display = 'flex';
-                document.getElementById('mainApp').style.display = 'none';
-                document.getElementById('passwordInput').value = '';
+        // ===========================================
+        // HELPERS
+        // ===========================================
+        function removeDiacritics(str) {
+            const map = {'á':'a','č':'c','ď':'d','é':'e','ě':'e','í':'i','ň':'n','ó':'o','ř':'r','š':'s','ť':'t','ú':'u','ů':'u','ý':'y','ž':'z','Á':'A','Č':'C','Ď':'D','É':'E','Ě':'E','Í':'I','Ň':'N','Ó':'O','Ř':'R','Š':'S','Ť':'T','Ú':'U','Ů':'U','Ý':'Y','Ž':'Z'};
+            return str.replace(/[^\u0000-\u007E]/g, c => map[c] || c);
+        }
+
+        function generateEmail() {
+            const first = document.getElementById('firstName').value.trim();
+            const last = document.getElementById('lastName').value.trim();
+            if(first && last) {
+                document.getElementById('email').value = 
+                    `${removeDiacritics(first).toLowerCase()}.${removeDiacritics(last).toLowerCase()}@media-list.cz`;
             }
         }
 
-        setInterval(() => {
-            const sessionExpiry = localStorage.getItem('sessionExpiry');
-            if (!sessionExpiry || Date.now() >= parseInt(sessionExpiry)) {
-                logout();
+        function generatePhotoFilename() {
+            const last = document.getElementById('lastName').value.trim();
+            if(last) {
+                const clean = removeDiacritics(last);
+                document.getElementById('photoFilename').value = clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
             }
-        }, 60000);
+        }
+
+        function formatPhone(val) {
+            let nums = val.replace(/\D/g, '');
+            if(nums.startsWith('420')) nums = nums.substring(3);
+            nums = nums.substring(0, 9);
+            if(!nums) return '';
+            let fmt = '+420';
+            if(nums.length > 0) fmt += ' ' + nums.substring(0, 3);
+            if(nums.length > 3) fmt += ' ' + nums.substring(3, 6);
+            if(nums.length > 6) fmt += ' ' + nums.substring(6, 9);
+            return fmt;
+        }
 
         // ===========================================
         // GENERÁTOR
         // ===========================================
-        
-        // Odstranění diakritiky
-        function removeDiacritics(str) {
-            const diacriticsMap = {
-                'á': 'a', 'č': 'c', 'ď': 'd', 'é': 'e', 'ě': 'e', 'í': 'i',
-                'ň': 'n', 'ó': 'o', 'ř': 'r', 'š': 's', 'ť': 't', 'ú': 'u',
-                'ů': 'u', 'ý': 'y', 'ž': 'z',
-                'Á': 'A', 'Č': 'C', 'Ď': 'D', 'É': 'E', 'Ě': 'E', 'Í': 'I',
-                'Ň': 'N', 'Ó': 'O', 'Ř': 'R', 'Š': 'S', 'Ť': 'T', 'Ú': 'U',
-                'Ů': 'U', 'Ý': 'Y', 'Ž': 'Z'
-            };
-            return str.replace(/[^\u0000-\u007E]/g, char => diacriticsMap[char] || char);
-        }
-
-        // Auto-generování emailu
-        function generateEmail() {
-            const firstName = document.getElementById('firstName').value.trim();
-            const lastName = document.getElementById('lastName').value.trim();
-            
-            if (firstName && lastName) {
-                const firstNameClean = removeDiacritics(firstName).toLowerCase();
-                const lastNameClean = removeDiacritics(lastName).toLowerCase();
-                const email = `${firstNameClean}.${lastNameClean}@media-list.cz`;
-                document.getElementById('email').value = email;
-            }
-        }
-
-        // Auto-generování názvu fotky z příjmení
-        function generatePhotoFilename() {
-            const lastName = document.getElementById('lastName').value.trim();
-            
-            if (lastName) {
-                // Odstraň diakritiku a zachovej první písmeno velké
-                const cleaned = removeDiacritics(lastName);
-                const filename = cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
-                document.getElementById('photoFilename').value = filename;
-            }
-        }
-
-        // Formátování telefonu - OPRAVENO bez posunu kurzoru
-        function formatPhone(value) {
-            // Odstraň všechno kromě číslic
-            let numbers = value.replace(/\D/g, '');
-            
-            // Odstraň 420 pokud tam je (aby se dalo normálně psát)
-            if (numbers.startsWith('420')) {
-                numbers = numbers.substring(3);
-            }
-            
-            // Ořízni na 9 číslic
-            numbers = numbers.substring(0, 9);
-            
-            // Formátuj: +420 XXX XXX XXX
-            if (numbers.length === 0) {
-                return '';
-            }
-            
-            let formatted = '+420';
-            if (numbers.length > 0) {
-                formatted += ' ' + numbers.substring(0, 3);
-            }
-            if (numbers.length > 3) {
-                formatted += ' ' + numbers.substring(3, 6);
-            }
-            if (numbers.length > 6) {
-                formatted += ' ' + numbers.substring(6, 9);
-            }
-            
-            return formatted;
-        }
-
-        // Event listeners
-        document.getElementById('firstName').addEventListener('input', () => {
-            generateEmail();
-            updatePreview();
-        });
-        
-        document.getElementById('lastName').addEventListener('input', () => {
-            generateEmail();
-            generatePhotoFilename();
-            updatePreview();
-        });
-        
-        // Opravené formátování telefonu - formátuje až při opuštění pole
-        document.getElementById('phone').addEventListener('blur', (e) => {
-            e.target.value = formatPhone(e.target.value);
-            updatePreview();
-        });
-        
-        // Ostatní pole - běžný update preview
-        ['position', 'email', 'linkedin', 'photoFilename', 'darkMode', 'showLinkedIn'].forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('input', updatePreview);
-                element.addEventListener('change', updatePreview);
-            }
-        });
-        inputs.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('input', updatePreview);
-                element.addEventListener('change', updatePreview);
-            }
-        });
-
         function generateSignatureHTML() {
             const data = {
                 firstName: document.getElementById('firstName').value,
@@ -440,11 +497,9 @@
             const textColor = isDark ? '#e5e5e5' : '#222222';
             const accentColor = '#0B64D8';
 
-            // Formátuj telefon pro zobrazení
             const phoneDisplay = formatPhone(data.phone);
             const phoneHref = data.phone.replace(/\D/g, '');
 
-            // LinkedIn část - zobrazit jen pokud je zaškrtnuto
             const linkedInHTML = showLinkedIn && data.linkedin ? `
           <td valign="middle" style="padding:2px 8px 2px 0;">
             <img src="https://cdn.medialist.cz/LinkedIN.png" width="22" height="22" alt="LinkedIn" style="display:block;width:22px;height:22px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
@@ -453,13 +508,11 @@
             <a href="https://www.linkedin.com/in/${data.linkedin}/" style="color:${textColor};text-decoration:none;">linkedin.com/in/${data.linkedin}/</a>
           </td>` : '';
 
-            return `<!-- ====== EMAIL SIGNATURE · media:list · ${data.firstName} ${data.lastName} ====== -->
+            return `<!-- EMAIL SIGNATURE · media:list · ${data.firstName} ${data.lastName} -->
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;background:${bgColor};font-family:Arial,Helvetica,sans-serif;color:${textColor};">
   <tr>
     <td valign="top" style="padding:0 8px 8px 0;">
-      <img src="https://cdn.medialist.cz/profil/ML_1080x1080px_${data.photoFilename}.png"
-           width="140" height="140" alt="${data.firstName} ${data.lastName}"
-           style="display:block;border:0;outline:0;width:140px;height:140px;background:${bgColor};-ms-interpolation-mode:bicubic;">
+      <img src="https://cdn.medialist.cz/profil/ML_1080x1080px_${data.photoFilename}.png" width="140" height="140" alt="${data.firstName} ${data.lastName}" style="display:block;border:0;outline:0;width:140px;height:140px;background:${bgColor};-ms-interpolation-mode:bicubic;">
     </td>
     <td valign="top" style="padding-top:15px;">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
@@ -468,16 +521,16 @@
           <td style="font-size:22px;line-height:28px;font-weight:700;color:${accentColor};padding:0 0 6px 0;white-space:nowrap;">${data.position}</td>
         </tr>
       </table>
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:15px;line-height:21px;color:${textColor};font-weight:400;mso-line-height-rule:exactly;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:15px;line-height:21px;color:${textColor};font-weight:400;">
         <tr>
           <td valign="middle" style="padding:2px 8px 2px 0;">
-            <img src="https://cdn.medialist.cz/Phone.png" width="22" height="22" alt="Telefon" style="display:block;width:22px;height:22px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
+            <img src="https://cdn.medialist.cz/Phone.png" width="22" height="22" alt="Telefon" style="display:block;width:22px;height:22px;border:0;outline:0;">
           </td>
           <td valign="middle" style="padding:2px 18px 2px 0;white-space:nowrap;">
             <a href="tel:+420${phoneHref}" style="color:${textColor};text-decoration:none;">${phoneDisplay}</a>
           </td>
           <td valign="middle" style="padding:2px 8px 2px 0;">
-            <img src="https://cdn.medialist.cz/Mail.png" width="22" height="22" alt="E-mail" style="display:block;width:22px;height:22px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
+            <img src="https://cdn.medialist.cz/Mail.png" width="22" height="22" alt="E-mail" style="display:block;width:22px;height:22px;border:0;outline:0;">
           </td>
           <td valign="middle" style="padding:2px 0 2px 0;">
             <a href="mailto:${data.email}" style="color:${textColor};text-decoration:none;">${data.email}</a>
@@ -487,10 +540,10 @@
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="1" style="border-collapse:collapse;">
         <tr><td style="line-height:0;font-size:0;height:4px;">&nbsp;</td></tr>
       </table>
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:15px;line-height:21px;color:${textColor};font-weight:400;mso-line-height-rule:exactly;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:15px;line-height:21px;color:${textColor};font-weight:400;">
         <tr>
           <td valign="middle" style="padding:2px 8px 2px 0;">
-            <img src="https://cdn.medialist.cz/web.png" width="22" height="22" alt="Web" style="display:block;width:22px;height:22px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
+            <img src="https://cdn.medialist.cz/web.png" width="22" height="22" alt="Web" style="display:block;width:22px;height:22px;border:0;outline:0;">
           </td>
           <td valign="middle" style="padding:2px 18px 2px 0;">
             <a href="https://medialist.cz" style="color:${textColor};text-decoration:none;">medialist.cz</a>
@@ -500,7 +553,7 @@
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-top:6px;">
         <tr>
           <td style="padding:5px 0 0 0;">
-            <img src="https://cdn.medialist.cz/ml_logo.png" width="130" alt="media:list logo" style="display:block;border:0;outline:0;width:130px;height:auto;background:${bgColor};-ms-interpolation-mode:bicubic;">
+            <img src="https://cdn.medialist.cz/ml_logo.png" width="130" alt="media:list logo" style="display:block;border:0;outline:0;width:130px;height:auto;background:${bgColor};">
           </td>
         </tr>
       </table>
@@ -512,118 +565,171 @@
         function updatePreview() {
             const html = generateSignatureHTML();
             const isDark = document.getElementById('darkMode').checked;
-            const preview = document.getElementById('preview');
-            preview.innerHTML = html;
-            preview.className = isDark 
-                ? 'border-2 rounded-lg p-8 bg-gray-900 border-gray-700 overflow-auto'
-                : 'border-2 rounded-lg p-8 bg-gray-50 border-gray-200 overflow-auto';
+            document.getElementById('preview').innerHTML = html;
+            document.getElementById('preview').className = isDark ? 
+                'border-2 rounded-lg p-8 bg-gray-900 border-gray-700' : 
+                'border-2 rounded-lg p-8 bg-gray-50 border-gray-200';
         }
 
         async function copyToClipboard() {
+            if(!validateAllFields()) {
+                showToast('Vyplň všechna pole správně', 'warning');
+                return;
+            }
             const html = generateSignatureHTML();
-            const btn = document.getElementById('copyBtn');
-            
             try {
-                await navigator.clipboard.write([
-                    new ClipboardItem({
-                        'text/html': new Blob([html], { type: 'text/html' }),
-                        'text/plain': new Blob([html], { type: 'text/plain' })
-                    })
-                ]);
-                btn.textContent = '✅ Zkopírováno!';
-                setTimeout(() => btn.textContent = '📋 Kopírovat', 2000);
-            } catch (err) {
-                const textArea = document.createElement('textarea');
-                textArea.value = html;
-                document.body.appendChild(textArea);
-                textArea.select();
+                await navigator.clipboard.write([new ClipboardItem({'text/html': new Blob([html], {type:'text/html'})})]);
+                showToast('Podpis zkopírován!', 'success');
+            } catch(e) {
+                const ta = document.createElement('textarea');
+                ta.value = html;
+                document.body.appendChild(ta);
+                ta.select();
                 document.execCommand('copy');
-                document.body.removeChild(textArea);
-                btn.textContent = '✅ Zkopírováno!';
-                setTimeout(() => btn.textContent = '📋 Kopírovat', 2000);
+                document.body.removeChild(ta);
+                showToast('Podpis zkopírován!', 'success');
             }
         }
 
         function downloadHTML() {
+            if(!validateAllFields()) {
+                showToast('Vyplň všechna pole správně', 'warning');
+                return;
+            }
             const html = generateSignatureHTML();
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
-            const blob = new Blob([html], { type: 'text/html' });
+            const fn = document.getElementById('firstName').value;
+            const ln = document.getElementById('lastName').value;
+            const blob = new Blob([html], {type:'text/html'});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `podpis_${firstName}_${lastName}.html`;
-            document.body.appendChild(a);
+            a.download = `podpis_${fn}_${ln}.html`;
             a.click();
-            document.body.removeChild(a);
             URL.revokeObjectURL(url);
+            showToast('Podpis stažen!', 'success');
         }
 
-        function handleCSV(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
+        function handleCSV(e) {
+            const file = e.target.files[0];
+            if(!file) return;
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const text = e.target.result;
-                const lines = text.split('\n');
-                const employees = lines.slice(1)
-                    .filter(line => line.trim())
-                    .map(line => {
-                        const values = line.split(',').map(v => v.trim());
-                        return {
-                            firstName: values[0],
-                            lastName: values[1],
-                            position: values[2],
-                            phone: values[3],
-                            email: values[4],
-                            linkedin: values[5],
-                            photoFilename: values[6]
-                        };
-                    });
-
-                const resultDiv = document.getElementById('csvResult');
-                resultDiv.innerHTML = `
-                    <p class="text-sm text-green-600 font-medium mb-2">✓ Načteno ${employees.length} lidí</p>
-                    <button onclick="downloadAllFromCSV()" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-                        💾 Stáhnout všechny podpisy (${employees.length})
+            reader.onload = (ev) => {
+                const text = ev.target.result;
+                const lines = text.split('\n').slice(1).filter(l=>l.trim());
+                const employees = lines.map(l => {
+                    const v = l.split(',').map(x=>x.trim());
+                    return {firstName:v[0],lastName:v[1],position:v[2],phone:v[3],email:v[4],linkedin:v[5],photoFilename:v[6]};
+                });
+                document.getElementById('csvResult').innerHTML = `
+                    <p class="text-sm text-green-600 mb-2">✓ Načteno ${employees.length} lidí</p>
+                    <button onclick="downloadAllFromCSV()" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg">
+                        💾 Stáhnout všechny (${employees.length})
                     </button>
                 `;
-
                 window.csvEmployees = employees;
             };
             reader.readAsText(file);
         }
 
         function downloadAllFromCSV() {
-            if (!window.csvEmployees) return;
-
-            window.csvEmployees.forEach(person => {
-                document.getElementById('firstName').value = person.firstName;
-                document.getElementById('lastName').value = person.lastName;
-                document.getElementById('position').value = person.position;
-                document.getElementById('phone').value = person.phone;
-                document.getElementById('email').value = person.email;
-                document.getElementById('linkedin').value = person.linkedin;
-                document.getElementById('photoFilename').value = person.photoFilename;
-                
-                // Nastav LinkedIn checkbox podle toho, jestli má osoba LinkedIn
-                document.getElementById('showLinkedIn').checked = person.linkedin && person.linkedin.trim() !== '';
-
+            if(!window.csvEmployees) return;
+            window.csvEmployees.forEach(p => {
+                document.getElementById('firstName').value = p.firstName;
+                document.getElementById('lastName').value = p.lastName;
+                document.getElementById('position').value = p.position;
+                document.getElementById('phone').value = p.phone;
+                document.getElementById('email').value = p.email;
+                document.getElementById('linkedin').value = p.linkedin;
+                document.getElementById('photoFilename').value = p.photoFilename;
+                document.getElementById('showLinkedIn').checked = !!(p.linkedin && p.linkedin.trim());
                 const html = generateSignatureHTML();
-                const blob = new Blob([html], { type: 'text/html' });
+                const blob = new Blob([html], {type:'text/html'});
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `podpis_${person.firstName}_${person.lastName}.html`;
-                document.body.appendChild(a);
+                a.download = `podpis_${p.firstName}_${p.lastName}.html`;
                 a.click();
-                document.body.removeChild(a);
                 URL.revokeObjectURL(url);
             });
-
-            alert(`✅ Hotovo! Staženo ${window.csvEmployees.length} podpisů`);
+            showToast(`Staženo ${window.csvEmployees.length} podpisů!`, 'success');
         }
+
+        // ===========================================
+        // PŘIHLÁŠENÍ
+        // ===========================================
+        window.addEventListener('load', () => {
+            const exp = localStorage.getItem('sessionExpiry');
+            if(exp && Date.now() < parseInt(exp)) showApp();
+        });
+
+        function checkPassword(e) {
+            e.preventDefault();
+            const pw = document.getElementById('passwordInput').value;
+            if(pw === CORRECT_PASSWORD) {
+                localStorage.setItem('sessionExpiry', (Date.now() + SESSION_TIMEOUT).toString());
+                showApp();
+            } else {
+                document.getElementById('errorMessage').classList.remove('hidden');
+                document.getElementById('passwordInput').value = '';
+                setTimeout(() => document.getElementById('errorMessage').classList.add('hidden'), 3000);
+            }
+        }
+
+        function showApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            const hasData = loadData();
+            if(hasData) showToast('Obnovena data', 'info');
+            
+            setTimeout(() => {
+                generateEmail();
+                generatePhotoFilename();
+                validateAllFields();
+                const pf = document.getElementById('photoFilename').value;
+                if(pf) checkPhotoExists(pf);
+                updatePreview();
+                
+                // Event listeners
+                ['firstName','lastName','position','phone','email','linkedin','photoFilename','darkMode','showLinkedIn'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if(!el) return;
+                    el.addEventListener('input', () => {
+                        if(id==='firstName' || id==='lastName') {
+                            generateEmail();
+                            if(id==='lastName') generatePhotoFilename();
+                        }
+                        if(id==='photoFilename') checkPhotoExists(el.value);
+                        if(id==='phone' && !el.matches(':focus')) el.value = formatPhone(el.value);
+                        validateAllFields();
+                        saveData();
+                        updatePreview();
+                    });
+                    el.addEventListener('change', () => {
+                        validateAllFields();
+                        saveData();
+                        updatePreview();
+                    });
+                    if(id==='phone') {
+                        el.addEventListener('blur', () => {
+                            el.value = formatPhone(el.value);
+                            validateAllFields();
+                            saveData();
+                            updatePreview();
+                        });
+                    }
+                });
+            }, 100);
+        }
+
+        function logout() {
+            localStorage.removeItem('sessionExpiry');
+            location.reload();
+        }
+
+        setInterval(() => {
+            const exp = localStorage.getItem('sessionExpiry');
+            if(!exp || Date.now() >= parseInt(exp)) logout();
+        }, 60000);
     </script>
 </body>
 </html>
