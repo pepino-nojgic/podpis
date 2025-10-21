@@ -82,6 +82,22 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        /* Historie scrollbar */
+        #historyList::-webkit-scrollbar {
+            width: 6px;
+        }
+        #historyList::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        #historyList::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        #historyList::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
     </style>
 </head>
 <body>
@@ -234,6 +250,23 @@
                     </div>
 
                     <div class="mt-6 pt-6 border-t">
+                        <h3 class="font-semibold text-gray-800 mb-3">✅ Kdo už zkopíroval podpis</h3>
+                        <div class="bg-green-50 rounded-lg p-4 mb-3 border border-green-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-semibold text-green-800">📊 Celkem zkopírováno:</span>
+                                <span id="historyCount" class="text-lg font-bold text-green-600">0</span>
+                            </div>
+                        </div>
+                        <div id="historyList" class="space-y-2 max-h-64 overflow-y-auto"></div>
+                        <button onclick="updateHistoryDisplay()" class="mt-3 w-full bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs font-medium py-2 px-3 rounded-lg transition-colors">
+                            🔄 Obnovit seznam
+                        </button>
+                        <p class="mt-2 text-xs text-gray-500 text-center">
+                            💡 Pro vymazání otevři <a href="https://docs.google.com/spreadsheets" target="_blank" class="text-blue-500 underline">Google Sheet</a>
+                        </p>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t">
                         <h3 class="font-semibold text-gray-800 mb-3">📦 Hromadné vytvoření</h3>
                         <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
                             <input type="file" id="csvFile" accept=".csv" onchange="handleCSV(event)" class="hidden">
@@ -320,6 +353,9 @@
         // HESLO
         const CORRECT_PASSWORD = "medialist2025";
         const SESSION_TIMEOUT = 30 * 60 * 1000;
+        
+        // GOOGLE SHEETS API
+        const SHEETS_URL = "https://script.google.com/macros/s/AKfycbxhzQTGP-aFtwHh8tv7NXfq2rbhBguWLeRRzgeVJk2GmJ7ykxoSv-Qx-U2okB7DsWk1ng/exec";
         
         // ===========================================
         // TOAST
@@ -645,6 +681,9 @@
             try {
                 await navigator.clipboard.write([new ClipboardItem({'text/html': new Blob([html], {type:'text/html'})})]);
                 showToast('Podpis zkopírován!', 'success');
+                
+                // Přidat do historie
+                addToHistory();
             } catch(e) {
                 const ta = document.createElement('textarea');
                 ta.value = html;
@@ -653,6 +692,9 @@
                 document.execCommand('copy');
                 document.body.removeChild(ta);
                 showToast('Podpis zkopírován!', 'success');
+                
+                // Přidat do historie
+                addToHistory();
             }
         }
 
@@ -746,6 +788,9 @@
             const hasData = loadData();
             if(hasData) showToast('Obnovena data', 'info');
             
+            // Zobraz historii
+            updateHistoryDisplay();
+            
             setTimeout(() => {
                 generateEmail();
                 generatePhotoFilename();
@@ -784,6 +829,90 @@
                     }
                 });
             }, 100);
+        }
+
+        // ===========================================
+        // HISTORIE KOPÍROVÁNÍ - GOOGLE SHEETS
+        // ===========================================
+        async function addToHistory() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const position = document.getElementById('position').value;
+            
+            const now = new Date();
+            const date = now.toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const time = now.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
+            
+            try {
+                const response = await fetch(SHEETS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        firstName: firstName,
+                        lastName: lastName,
+                        position: position,
+                        date: date,
+                        time: time
+                    })
+                });
+                
+                // Po uložení načti aktuální data
+                setTimeout(() => updateHistoryDisplay(), 1000);
+                
+            } catch (error) {
+                console.error('Chyba při ukládání do Sheets:', error);
+                showToast('Nepodařilo se uložit do historie', 'warning');
+            }
+        }
+
+        async function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            const historyCount = document.getElementById('historyCount');
+            
+            // Zobraz loading
+            historyList.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">Načítám...</p>';
+            
+            try {
+                const response = await fetch(SHEETS_URL + '?action=get');
+                const data = await response.json();
+                
+                if (!data.success || !data.history || data.history.length === 0) {
+                    historyList.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">Zatím nikdo nezkopíroval podpis</p>';
+                    historyCount.textContent = '0';
+                    return;
+                }
+                
+                const history = data.history;
+                historyCount.textContent = history.length;
+                
+                historyList.innerHTML = history.map((item) => {
+                    return `
+                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-green-400 transition-colors">
+                            <div class="flex-1">
+                                <div class="font-semibold text-gray-800 text-sm">
+                                    ${item.firstName} ${item.lastName}
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    ${item.position} • ${item.date} ${item.time}
+                                </div>
+                            </div>
+                            <span class="text-green-500 text-lg">✓</span>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Chyba při načítání historie:', error);
+                historyList.innerHTML = '<p class="text-sm text-red-500 text-center py-4">Chyba při načítání dat</p>';
+                historyCount.textContent = '0';
+            }
+        }
+
+        function clearHistory() {
+            alert('Pro vymazání historie otevři Google Sheet a smaž řádky ručně.');
         }
 
         function logout() {
