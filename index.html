@@ -597,6 +597,7 @@
             const bgColor = isDark ? '#1a1a1a' : '#ffffff';
             const textColor = isDark ? '#e5e5e5' : '#222222';
             const accentColor = '#0B64D8';
+            const logoUrl = isDark ? 'https://cdn.medialist.cz/ml_logo_light.png' : 'https://cdn.medialist.cz/ml_logo.png';
 
             const phoneDisplay = formatPhone(data.phone);
             const phoneHref = data.phone.replace(/\D/g, '');
@@ -654,7 +655,7 @@
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-top:5px;">
         <tr>
           <td style="padding:4px 0 0 0;">
-            <img src="https://cdn.medialist.cz/ml_logo.png" width="98" alt="media:list logo" style="display:block;border:0;outline:0;width:98px;height:auto;background:${bgColor};-ms-interpolation-mode:bicubic;">
+            <img src="${logoUrl}" width="98" alt="media:list logo" style="display:block;border:0;outline:0;width:98px;height:auto;background:${bgColor};-ms-interpolation-mode:bicubic;">
           </td>
         </tr>
       </table>
@@ -666,6 +667,11 @@
         function updatePreview() {
             const html = generateSignatureHTML();
             const isDark = document.getElementById('darkMode').checked;
+            
+            // Debug - ukaž jaké logo se používá
+            const logoUrl = isDark ? 'ml_logo_light.png' : 'ml_logo.png';
+            console.log('🎨 Dark mode:', isDark, '| Logo:', logoUrl);
+            
             document.getElementById('preview').innerHTML = html;
             document.getElementById('preview').className = isDark ? 
                 'border-2 rounded-lg p-8 bg-gray-900 border-gray-700' : 
@@ -800,7 +806,7 @@
                 updatePreview();
                 
                 // Event listeners
-                ['firstName','lastName','position','phone','email','linkedin','photoFilename','darkMode','showLinkedIn'].forEach(id => {
+                ['firstName','lastName','position','phone','email','linkedin','photoFilename'].forEach(id => {
                     const el = document.getElementById(id);
                     if(!el) return;
                     el.addEventListener('input', () => {
@@ -827,6 +833,18 @@
                             updatePreview();
                         });
                     }
+                });
+                
+                // Speciální handling pro checkboxy (darkMode, showLinkedIn)
+                ['darkMode', 'showLinkedIn'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if(!el) return;
+                    el.addEventListener('change', () => {
+                        console.log('✅ Checkbox změněn:', id, el.checked);
+                        validateAllFields();
+                        saveData();
+                        updatePreview();
+                    });
                 });
             }, 100);
         }
@@ -873,7 +891,7 @@
             const historyCount = document.getElementById('historyCount');
             
             // Zobraz loading
-            historyList.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">Načítám...</p>';
+            historyList.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">📡 Načítám...</p>';
             
             try {
                 const response = await fetch(SHEETS_URL + '?action=get');
@@ -906,14 +924,17 @@
                 
             } catch (error) {
                 console.error('Chyba při načítání historie:', error);
-                historyList.innerHTML = '<p class="text-sm text-red-500 text-center py-4">Chyba při načítání dat</p>';
+                historyList.innerHTML = '<p class="text-sm text-red-500 text-center py-4">⚠️ Chyba při načítání dat</p>';
                 historyCount.textContent = '0';
             }
         }
-
-        function clearHistory() {
-            alert('Pro vymazání historie otevři Google Sheet a smaž řádky ručně.');
-        }
+        
+        // Automatické obnovování každých 30 sekund
+        setInterval(() => {
+            if (document.getElementById('mainApp').style.display !== 'none') {
+                updateHistoryDisplay();
+            }
+        }, 30000);
 
         function logout() {
             localStorage.removeItem('sessionExpiry');
