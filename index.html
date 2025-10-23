@@ -231,9 +231,12 @@
                             <div id="photoStatus" class="photo-status"></div>
                         </div>
 
-                        <div class="flex items-center gap-3 pt-4 border-t">
-                            <input type="checkbox" id="darkMode" class="w-5 h-5 text-blue-600 rounded">
-                            <label for="darkMode" class="text-sm font-medium text-gray-700">👁️ Náhled v dark mode</label>
+                        <div class="pt-4 border-t">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" id="darkMode" class="w-5 h-5 text-blue-600 rounded">
+                                <label for="darkMode" class="text-sm font-medium text-gray-700">👁️ Náhled v dark mode</label>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1 ml-8">💡 Ovlivňuje jen náhled níže, ne generovaný podpis</p>
                         </div>
                     </div>
 
@@ -359,9 +362,22 @@
         // HESLO
         const CORRECT_PASSWORD = "Podpis.25";
         const SESSION_TIMEOUT = 30 * 60 * 1000;
-        
+
         // GOOGLE SHEETS API
         const SHEETS_URL = "https://script.google.com/macros/s/AKfycbxhzQTGP-aFtwHh8tv7NXfq2rbhBguWLeRRzgeVJk2GmJ7ykxoSv-Qx-U2okB7DsWk1ng/exec";
+
+        // TRACKING RUČNÍCH ÚPRAV
+        let emailManuallyEdited = false;
+        let photoFilenameManuallyEdited = false;
+
+        // TRACKING INTERAKCE S HISTORIÍ
+        let historyListActive = false;
+
+        // SESSION WARNING
+        let sessionWarningShown = false;
+
+        // TRACKING TOUCHED FIELDS (pro lepší UX validace)
+        const touchedFields = new Set();
         
         // ===========================================
         // TOAST
@@ -379,66 +395,63 @@
         // ===========================================
         // VALIDACE
         // ===========================================
-        function validateAllFields() {
+        function validateAllFields(showVisualFeedback = false) {
             const fields = ['firstName', 'lastName', 'position', 'phone', 'email', 'photoFilename'];
             let allValid = true;
-            
+
             fields.forEach(id => {
                 const field = document.getElementById(id);
                 if (!field) return;
                 const val = field.value.trim();
-                
-                // Prázdné pole
+                let isFieldValid = true;
+
+                // Kontrola validity
                 if (!val) {
-                    field.classList.add('input-invalid');
-                    field.classList.remove('input-valid');
-                    allValid = false;
-                    return;
-                }
-                
-                // Email validace
-                if (id === 'email') {
-                    if (!val.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-                        field.classList.add('input-invalid');
-                        field.classList.remove('input-valid');
-                        allValid = false;
-                    } else {
-                        field.classList.add('input-valid');
-                        field.classList.remove('input-invalid');
-                    }
-                    return;
-                }
-                
-                // Telefon validace - DŮLEŽITÉ: pouze číslice bez +420
-                if (id === 'phone') {
-                    // Extrahuj všechny číslice
+                    isFieldValid = false;
+                } else if (id === 'email') {
+                    isFieldValid = val.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/) !== null;
+                } else if (id === 'phone') {
                     const allDigits = val.replace(/\D/g, '');
-                    
-                    // Odstraň +420 prefix
                     let cleanDigits = allDigits;
                     if (allDigits.startsWith('420') && allDigits.length > 9) {
                         cleanDigits = allDigits.substring(3);
                     }
-                    
-                    // Kontrola: přesně 9 číslic
-                    const isValid = cleanDigits.length === 9 && /^\d{9}$/.test(cleanDigits);
-                    
-                    if (isValid) {
+                    isFieldValid = cleanDigits.length === 9 && /^\d{9}$/.test(cleanDigits);
+                }
+
+                // Vizuální feedback pouze pro touched pole nebo pokud je showVisualFeedback = true
+                if (showVisualFeedback || touchedFields.has(id)) {
+                    if (isFieldValid) {
                         field.classList.add('input-valid');
                         field.classList.remove('input-invalid');
                     } else {
                         field.classList.add('input-invalid');
                         field.classList.remove('input-valid');
-                        allValid = false;
                     }
-                    return;
                 }
-                
-                // Ostatní pole - jen neprázdnost
-                field.classList.add('input-valid');
-                field.classList.remove('input-invalid');
+
+                if (!isFieldValid) allValid = false;
             });
-            
+
+            // LinkedIn validace
+            const linkedInField = document.getElementById('linkedin');
+            const showLinkedInCheckbox = document.getElementById('showLinkedIn');
+            if (showLinkedInCheckbox && showLinkedInCheckbox.checked) {
+                const isLinkedInValid = linkedInField.value.trim() !== '';
+                if (showVisualFeedback || touchedFields.has('linkedin')) {
+                    if (isLinkedInValid) {
+                        linkedInField.classList.add('input-valid');
+                        linkedInField.classList.remove('input-invalid');
+                    } else {
+                        linkedInField.classList.add('input-invalid');
+                        linkedInField.classList.remove('input-valid');
+                    }
+                }
+                if (!isLinkedInValid) allValid = false;
+            } else {
+                linkedInField.classList.remove('input-valid', 'input-invalid');
+            }
+
             document.getElementById('copyBtn').disabled = !allValid;
             document.getElementById('downloadBtn').disabled = !allValid;
             return allValid;
@@ -522,10 +535,7 @@
             if (!saved) return false;
             try {
                 const data = JSON.parse(saved);
-                if (Date.now() - data.timestamp > 7 * 24 * 60 * 60 * 1000) {
-                    localStorage.removeItem('mlSigData');
-                    return false;
-                }
+                // Odstraněn timeout - data se uchovávají neomezeně
                 document.getElementById('firstName').value = data.firstName || 'Jan';
                 document.getElementById('lastName').value = data.lastName || 'Anon';
                 document.getElementById('position').value = data.position || 'Marketing Manager';
@@ -556,15 +566,21 @@
         }
 
         function generateEmail() {
+            // Negenerovat pokud byl email ručně upraven
+            if (emailManuallyEdited) return;
+
             const first = document.getElementById('firstName').value.trim();
             const last = document.getElementById('lastName').value.trim();
             if(first && last) {
-                document.getElementById('email').value = 
+                document.getElementById('email').value =
                     `${removeDiacritics(first).toLowerCase()}.${removeDiacritics(last).toLowerCase()}@media-list.cz`;
             }
         }
 
         function generatePhotoFilename() {
+            // Negenerovat pokud byl filename ručně upraven
+            if (photoFilenameManuallyEdited) return;
+
             const last = document.getElementById('lastName').value.trim();
             if(last) {
                 const clean = removeDiacritics(last);
@@ -613,7 +629,7 @@
             <img src="https://cdn.medialist.cz/LinkedIN.png" width="17" height="17" alt="LinkedIn" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
           </td>
           <td valign="middle" style="padding:2px 0 2px 0;">
-            <a href="https://www.linkedin.com/in/${data.linkedin}/" style="color:${textColor};text-decoration:none;">linkedin.com/in/${data.linkedin}/</a>
+            <a href="https://www.linkedin.com/in/${data.linkedin}/" style="color:${textColor};text-decoration:none !important;text-decoration-line:none !important;">linkedin.com/in/${data.linkedin}/</a>
           </td>` : '';
 
             return `<!-- EMAIL SIGNATURE · media:list · ${data.firstName} ${data.lastName} -->
@@ -635,13 +651,13 @@
             <img src="https://cdn.medialist.cz/Phone.png" width="17" height="17" alt="Telefon" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
           </td>
           <td valign="middle" style="padding:2px 14px 2px 0;white-space:nowrap;">
-            <a href="tel:+420${phoneHref}" style="color:${textColor};text-decoration:none;">${phoneDisplay}</a>
+            <a href="tel:+420${phoneHref}" style="color:${textColor};text-decoration:none !important;text-decoration-line:none !important;">${phoneDisplay}</a>
           </td>
           <td valign="middle" style="padding:2px 6px 2px 0;">
             <img src="https://cdn.medialist.cz/Mail.png" width="17" height="17" alt="E-mail" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
           </td>
           <td valign="middle" style="padding:2px 0 2px 0;">
-            <a href="mailto:${data.email}" style="color:${textColor};text-decoration:none;">${data.email}</a>
+            <a href="mailto:${data.email}" style="color:${textColor};text-decoration:none !important;text-decoration-line:none !important;">${data.email}</a>
           </td>
         </tr>
       </table>
@@ -654,7 +670,7 @@
             <img src="https://cdn.medialist.cz/web.png" width="17" height="17" alt="Web" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
           </td>
           <td valign="middle" style="padding:2px 14px 2px 0;">
-            <a href="https://medialist.cz" style="color:${textColor};text-decoration:none;">medialist.cz</a>
+            <a href="https://medialist.cz" style="color:${textColor};text-decoration:none !important;text-decoration-line:none !important;">medialist.cz</a>
           </td>${linkedInHTML}
         </tr>
       </table>
@@ -682,17 +698,23 @@
         }
 
         async function copyToClipboard() {
-            if(!validateAllFields()) {
+            if(!validateAllFields(true)) {
                 showToast('Vyplň všechna pole správně', 'warning');
                 return;
             }
+
+            const btn = document.getElementById('copyBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Kopíruji...';
+
             const html = generateSignatureHTML();
             try {
                 await navigator.clipboard.write([new ClipboardItem({'text/html': new Blob([html], {type:'text/html'})})]);
                 showToast('Podpis zkopírován!', 'success');
-                
+
                 // Přidat do historie
-                addToHistory();
+                await addToHistory();
             } catch(e) {
                 const ta = document.createElement('textarea');
                 ta.value = html;
@@ -701,28 +723,44 @@
                 document.execCommand('copy');
                 document.body.removeChild(ta);
                 showToast('Podpis zkopírován!', 'success');
-                
+
                 // Přidat do historie
-                addToHistory();
+                await addToHistory();
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                validateAllFields(); // Znovu validovat pro obnovení správného stavu tlačítka
             }
         }
 
         function downloadHTML() {
-            if(!validateAllFields()) {
+            if(!validateAllFields(true)) {
                 showToast('Vyplň všechna pole správně', 'warning');
                 return;
             }
-            const html = generateSignatureHTML();
-            const fn = document.getElementById('firstName').value;
-            const ln = document.getElementById('lastName').value;
-            const blob = new Blob([html], {type:'text/html'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `podpis_${fn}_${ln}.html`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('Podpis stažen!', 'success');
+
+            const btn = document.getElementById('downloadBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Stahuji...';
+
+            setTimeout(() => {
+                const html = generateSignatureHTML();
+                const fn = document.getElementById('firstName').value;
+                const ln = document.getElementById('lastName').value;
+                const blob = new Blob([html], {type:'text/html'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `podpis_${fn}_${ln}.html`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('Podpis stažen!', 'success');
+
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                validateAllFields(); // Znovu validovat pro obnovení správného stavu tlačítka
+            }, 300); // Malý delay aby se zobrazil loading state
         }
 
         function handleCSV(e) {
@@ -803,7 +841,7 @@
             setTimeout(() => {
                 generateEmail();
                 generatePhotoFilename();
-                validateAllFields();
+                validateAllFields(true); // Zobrazit vizuální feedback při inicializaci
                 const pf = document.getElementById('photoFilename').value;
                 if(pf) checkPhotoExists(pf);
                 updatePreview();
@@ -812,30 +850,61 @@
                 ['firstName','lastName','position','phone','email','linkedin','photoFilename'].forEach(id => {
                     const el = document.getElementById(id);
                     if(!el) return;
+
                     el.addEventListener('input', () => {
+                        // Detekce ruční úpravy emailu
+                        if(id==='email') {
+                            emailManuallyEdited = true;
+                        }
+
+                        // Detekce ruční úpravy photoFilename
+                        if(id==='photoFilename') {
+                            photoFilenameManuallyEdited = true;
+                            checkPhotoExists(el.value);
+                        }
+
+                        // Auto-generování z jména
                         if(id==='firstName' || id==='lastName') {
                             generateEmail();
                             if(id==='lastName') generatePhotoFilename();
                         }
-                        if(id==='photoFilename') checkPhotoExists(el.value);
-                        if(id==='phone' && !el.matches(':focus')) el.value = formatPhone(el.value);
+
+                        // Real-time formátování telefonu
+                        if(id==='phone') {
+                            const cursorPos = el.selectionStart;
+                            const oldValue = el.value;
+                            const newValue = formatPhone(el.value);
+
+                            if (oldValue !== newValue) {
+                                el.value = newValue;
+                                // Nastav kurzor na konec pokud uživatel přidával na konec
+                                if (cursorPos === oldValue.length) {
+                                    el.setSelectionRange(newValue.length, newValue.length);
+                                }
+                            }
+                        }
+
                         validateAllFields();
                         saveData();
                         updatePreview();
                     });
+
                     el.addEventListener('change', () => {
                         validateAllFields();
                         saveData();
                         updatePreview();
                     });
-                    if(id==='phone') {
-                        el.addEventListener('blur', () => {
+
+                    // Blur - označit pole jako "touched" a validovat
+                    el.addEventListener('blur', () => {
+                        touchedFields.add(id);
+                        if(id==='phone') {
                             el.value = formatPhone(el.value);
-                            validateAllFields();
-                            saveData();
-                            updatePreview();
-                        });
-                    }
+                        }
+                        validateAllFields();
+                        saveData();
+                        updatePreview();
+                    });
                 });
                 
                 // Speciální handling pro checkboxy (darkMode, showLinkedIn)
@@ -843,12 +912,22 @@
                     const el = document.getElementById(id);
                     if(!el) return;
                     el.addEventListener('change', () => {
-                        console.log('✅ Checkbox změněn:', id, el.checked);
                         validateAllFields();
                         saveData();
                         updatePreview();
                     });
                 });
+
+                // Pausnout auto-refresh historie při hover
+                const historyList = document.getElementById('historyList');
+                if (historyList) {
+                    historyList.addEventListener('mouseenter', () => {
+                        historyListActive = true;
+                    });
+                    historyList.addEventListener('mouseleave', () => {
+                        historyListActive = false;
+                    });
+                }
             }, 100);
         }
 
@@ -932,9 +1011,9 @@
             }
         }
         
-        // Automatické obnovování každých 30 sekund
+        // Automatické obnovování každých 30 sekund (pokud uživatel neinteraguje s historií)
         setInterval(() => {
-            if (document.getElementById('mainApp').style.display !== 'none') {
+            if (document.getElementById('mainApp').style.display !== 'none' && !historyListActive) {
                 updateHistoryDisplay();
             }
         }, 30000);
@@ -944,9 +1023,40 @@
             location.reload();
         }
 
+        // Kontrola session expiry každou minutu
         setInterval(() => {
             const exp = localStorage.getItem('sessionExpiry');
-            if(!exp || Date.now() >= parseInt(exp)) logout();
+            if (!exp) {
+                logout();
+                return;
+            }
+
+            const timeLeft = parseInt(exp) - Date.now();
+            const fiveMinutes = 5 * 60 * 1000;
+
+            // Odhlásit pokud vypršela session
+            if (timeLeft <= 0) {
+                logout();
+                return;
+            }
+
+            // Warning 5 minut před vypršením
+            if (timeLeft <= fiveMinutes && !sessionWarningShown) {
+                sessionWarningShown = true;
+                const minutesLeft = Math.ceil(timeLeft / 60000);
+                showToast(`Za ${minutesLeft} min budete odhlášeni. Klikněte kamkoli pro prodloužení.`, 'warning');
+
+                // Prodloužit session při jakékoli aktivitě
+                const extendSession = () => {
+                    localStorage.setItem('sessionExpiry', (Date.now() + SESSION_TIMEOUT).toString());
+                    sessionWarningShown = false;
+                    showToast('Session prodloužena o dalších 30 minut', 'success');
+                    document.removeEventListener('click', extendSession);
+                    document.removeEventListener('keydown', extendSession);
+                };
+                document.addEventListener('click', extendSession, { once: true });
+                document.addEventListener('keydown', extendSession, { once: true });
+            }
         }, 60000);
     </script>
 </body>
