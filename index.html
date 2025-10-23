@@ -227,7 +227,7 @@
 
                         <div class="flex items-center gap-3 pt-4 border-t">
                             <input type="checkbox" id="darkMode" class="w-5 h-5 text-blue-600 rounded">
-                            <label for="darkMode" class="text-sm font-medium text-gray-700">🌙 Tmavá varianta</label>
+                            <label for="darkMode" class="text-sm font-medium text-gray-700">👁️ Náhled v dark mode</label>
                         </div>
                     </div>
 
@@ -592,12 +592,12 @@
                 photoFilename: document.getElementById('photoFilename').value
             };
 
-            const isDark = document.getElementById('darkMode').checked;
+            // KONSTANTNÍ HODNOTY - nezávislé na checkboxu darkMode
             const showLinkedIn = document.getElementById('showLinkedIn').checked;
-            const bgColor = isDark ? '#1a1a1a' : '#ffffff';
-            const textColor = isDark ? '#e5e5e5' : '#222222';
+            const bgColor = 'transparent';
+            const textColor = '#222222';
             const accentColor = '#0B64D8';
-            const logoUrl = isDark ? 'https://cdn.medialist.cz/ml_logo_light.png' : 'https://cdn.medialist.cz/ml_logo.png';
+            const logoUrl = 'https://cdn.medialist.cz/ml_logo.png';
 
             const phoneDisplay = formatPhone(data.phone);
             const phoneHref = data.phone.replace(/\D/g, '');
@@ -667,14 +667,11 @@
         function updatePreview() {
             const html = generateSignatureHTML();
             const isDark = document.getElementById('darkMode').checked;
-            
-            // Debug - ukaž jaké logo se používá
-            const logoUrl = isDark ? 'ml_logo_light.png' : 'ml_logo.png';
-            console.log('🎨 Dark mode:', isDark, '| Logo:', logoUrl);
-            
+
+            // isDark ovlivňuje POUZE vizuální náhled v aplikaci, ne generovaný HTML
             document.getElementById('preview').innerHTML = html;
-            document.getElementById('preview').className = isDark ? 
-                'border-2 rounded-lg p-8 bg-gray-900 border-gray-700' : 
+            document.getElementById('preview').className = isDark ?
+                'border-2 rounded-lg p-8 bg-gray-900 border-gray-700' :
                 'border-2 rounded-lg p-8 bg-gray-50 border-gray-200';
         }
 
