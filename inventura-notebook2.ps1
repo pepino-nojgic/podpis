@@ -1,5 +1,5 @@
 # URL tvé Apps Script webové aplikace
-$endpointUrl = "https://script.google.com/macros/s/AKfycbzoQNRRCsISGMU3NjWmfykQxXRcuUgumeBdF-F5MfbxjXlvSECOECV8tPpdIq3eDJfI/exec"
+$endpointUrl = "https://script.google.com/macros/s/AKfycbwZyogSAjYa8bH3l9sLKN5WfygyK7GjOnTcTHwoIZBDH-xJ37YdHsFGew5KSnkm7nKl/exec"
 
 # ----- Sber HW informaci -----
 $cs     = Get-CimInstance -ClassName Win32_ComputerSystem
@@ -139,4 +139,5 @@ catch {
     Write-Host $_.Exception.Message
 
 }
+
 
