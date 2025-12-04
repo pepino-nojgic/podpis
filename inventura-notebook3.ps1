@@ -157,7 +157,15 @@ $body = @{
 } | ConvertTo-Json -Depth 4
 
 try {
-    $response = Invoke-RestMethod -Uri $endpointUrl -Method Post -Body $body -ContentType "application/json"
+    # vynuceni UTF-8
+    $bodyBytes = [System.Text.Encoding]::UTF8.GetBytes($body)
+
+    $response = Invoke-RestMethod `
+        -Uri $endpointUrl `
+        -Method Post `
+        -Body $bodyBytes `
+        -ContentType "application/json; charset=utf-8"
+
     Write-Host "Hotovo - data odeslana." -ForegroundColor Green
 }
 catch {
@@ -165,5 +173,6 @@ catch {
     Write-Host $_.Exception.Message
 
 }
+
 
 
