@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Inventura zařízení | Media:list</title>
+    <link rel="icon" href="https://cdn.medialist.cz/favicon.ico">
+    <link rel="dns-prefetch" href="https://cdn.medialist.cz">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            margin-bottom: 32px;
+        }
+
+        .breadcrumb a {
+            color: #0B64D8;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+        }
+
+        .breadcrumb a:hover {
+            color: #094ba8;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px 32px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            border: 2px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            border-color: #0B64D8;
+        }
+
+        .card-icon {
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 12px;
+        }
+
+        .card-description {
+            font-size: 0.95rem;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .card-badge {
+            display: inline-block;
+            background: #eff6ff;
+            color: #0B64D8;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 12px;
+            margin-top: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="../index.html">← Zpět na Media:list nástroje</a>
+        </div>
+
+        <header>
+            <img src="https://cdn.medialist.cz/ml_logo.png" alt="Media:list" class="logo">
+            <h1>Inventura zařízení</h1>
+            <p class="subtitle">Vyber, na čem pracuješ. Podle toho se ti zobrazí správný návod.</p>
+        </header>
+
+        <div class="cards">
+            <a href="index_windows.html" class="card">
+                <div class="card-icon">💻</div>
+                <h2 class="card-title">Notebook / PC s Windows</h2>
+                <p class="card-description">Automatická inventura pomocí PowerShell skriptu</p>
+                <span class="card-badge">Windows 10/11</span>
+            </a>
+
+            <a href="mac.html" class="card">
+                <div class="card-icon">🍎</div>
+                <h2 class="card-title">MacBook (macOS)</h2>
+                <p class="card-description">Automatická inventura pomocí shell skriptu</p>
+                <span class="card-badge">macOS</span>
+            </a>
+        </div>
+
+        <footer>
+            <p>Media:list Internal Tools &copy; 2025</p>
+        </footer>
+    </div>
+</body>
+</html>

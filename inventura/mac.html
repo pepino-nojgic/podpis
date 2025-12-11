@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Inventura MacBooku | Media:list</title>
+  <link rel="icon" href="https://cdn.medialist.cz/favicon.ico">
+  <link rel="dns-prefetch" href="https://cdn.medialist.cz">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .breadcrumb {
+      margin-bottom: 24px;
+    }
+
+    .breadcrumb a {
+      color: #0B64D8;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s ease;
+    }
+
+    .breadcrumb a:hover {
+      color: #094ba8;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      width: 90px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+
+    .info-box {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-bottom: 24px;
+    }
+
+    .info-box-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-box ol {
+      margin: 0;
+      padding-left: 24px;
+      line-height: 1.8;
+      color: #374151;
+    }
+
+    .info-box ol li {
+      margin: 10px 0;
+    }
+
+    .info-box ol li strong {
+      color: #111827;
+    }
+
+    .info-box code {
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.9em;
+    }
+
+    .form-container {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-bottom: 24px;
+    }
+
+    .form-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 1000px;
+      border: none;
+      border-radius: 8px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 48px;
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 0;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .info-box,
+      .form-container {
+        padding: 20px 16px;
+      }
+
+      iframe {
+        min-height: 900px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">← Zpět na výběr zařízení</a>
+    </div>
+
+    <header>
+      <img src="https://cdn.medialist.cz/ml_logo.png" alt="Media:list" class="logo">
+      <h1>🍎 Inventura MacBooku</h1>
+      <p class="subtitle">Vyplň krátký formulář – zabere to asi minutu.</p>
+    </header>
+
+    <div class="info-box">
+      <div class="info-box-title">💡 Jak vyplnit formulář</div>
+      <ol>
+        <li>Připrav si své <strong>jméno a příjmení</strong></li>
+        <li>Klikni na <strong> (logo Apple)</strong> vlevo nahoře v menu baru</li>
+        <li>Vyber <strong>„O tomto Macu"</strong> (nebo „About This Mac")</li>
+        <li>Zkopíruj <strong>typ Macu</strong> – např. <code>MacBook Air (M1, 2020)</code></li>
+        <li>Zkopíruj <strong>sériové číslo</strong> (Serial Number)</li>
+        <li>Zvol, zda je MacBook <strong>firemní nebo soukromý</strong></li>
+        <li>Vyplň všechny údaje do formuláře níže</li>
+      </ol>
+    </div>
+
+    <div class="form-container">
+      <h2 class="form-title">📋 Formulář inventury</h2>
+      <iframe
+        src="https://docs.google.com/forms/d/e/1FAIpQLSeBJ6z_Ncs4QDX7Y_t5pVSL7K0uo5YhiKePM3uAYZ9I3kr3yw/viewform?embedded=true"
+        frameborder="0"
+        marginheight="0"
+        marginwidth="0"
+        loading="lazy">
+        Načítání formuláře…
+      </iframe>
+    </div>
+
+    <footer>
+      <p>Media:list Internal Tools &copy; 2025</p>
+    </footer>
+  </div>
+</body>
+</html>

