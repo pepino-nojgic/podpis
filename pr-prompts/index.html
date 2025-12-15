@@ -16,13 +16,13 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&display=swap" rel="stylesheet">
   <style>
-    /* Desktop two-column layout */
+    /* Desktop three-column layout */
     @media (min-width: 1024px) {
       .desktop-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        max-width: 1600px;
+        grid-template-columns: 1.2fr 1fr 1.2fr;
+        gap: 1.5rem;
+        max-width: 1800px;
         align-items: start;
       }
 
@@ -60,32 +60,22 @@
       <h1 class="text-3xl font-extrabold text-blue-600" style="font-family:'Poppins', sans-serif">🪄 PR Prompt Generátor</h1>
     </header>
 
-    <!-- Two-column grid for desktop, single column for mobile -->
-    <div class="desktop-grid">
-      <!-- LEFT COLUMN: Form -->
-      <div class="bg-white rounded-2xl shadow-lg p-6 space-y-4">
-        <!-- Manual toggle -->
-        <details class="bg-blue-50/50 p-3 rounded-lg shadow-inner">
-          <summary class="cursor-pointer font-medium text-blue-600 text-sm">
-            Jak generátor používat? (Rozklikni)
-          </summary>
+    <!-- Manual toggle above grid -->
+    <details class="bg-blue-50/50 p-3 rounded-lg shadow-inner mb-4">
+      <summary class="cursor-pointer font-medium text-blue-600 text-sm">
+        Jak generátor používat? (Rozklikni)
+      </summary>
+      <div class="mt-3 space-y-1 text-xs leading-relaxed">
+        <p>Vyplň <strong>Zadání</strong> (povinné) a další pole. „Neuvedeno" znamená, že se do promptu nezahrne.</p>
+      </div>
+    </details>
 
-          <div class="mt-3 space-y-1 text-xs leading-relaxed">
-            <p>Vyplň <strong>Zadání</strong> (povinné) a další pole. „Neuvedeno" znamená, že se do promptu nezahrne.</p>
-            <ul class="list-disc list-inside space-y-0.5 text-xs">
-              <li><strong>Zadání</strong> – hlavní instrukce</li>
-              <li><strong>Kontext</strong> – podklady</li>
-              <li><strong>Tón</strong> – styl vyjadřování</li>
-              <li><strong>Formát</strong> – typ výstupu</li>
-              <li><strong>Audience/Kanál/Cíl</strong> – cílení</li>
-            </ul>
-          </div>
-        </details>
-
-        <!-- Form -->
-        <form id="promptForm" class="space-y-3">
-          <!-- Tlačítka -->
-          <div class="flex flex-wrap gap-2">
+    <!-- Three-column grid for desktop, single column for mobile -->
+    <form id="promptForm">
+      <div class="desktop-grid">
+        <!-- LEFT COLUMN: Text inputs -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 space-y-4">
+          <div class="flex flex-wrap gap-2 mb-3">
             <button id="resetFormBtn" type="button" class="px-4 py-1.5 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">Nový</button>
             <button id="importTemplatesBtn" type="button" class="px-4 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Import</button>
           </div>
@@ -93,20 +83,23 @@
           <!-- Zadání -->
           <div>
             <label class="block font-medium mb-1 text-sm" for="mainText">Zadání *</label>
-            <textarea id="mainText" name="mainText" required rows="3" placeholder="Co má výstup obsahovat..." class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+            <textarea id="mainText" name="mainText" required rows="12" placeholder="Co má výstup obsahovat..." class="w-full p-3 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
           </div>
 
           <!-- Kontext -->
           <div>
             <label class="block font-medium mb-1 text-sm" for="contextText">Kontext</label>
-            <textarea id="contextText" name="contextText" rows="2" placeholder="Produktové detaily, citace..." class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+            <textarea id="contextText" name="contextText" rows="8" placeholder="Produktové detaily, citace..." class="w-full p-3 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
           </div>
+        </div>
 
+        <!-- MIDDLE COLUMN: Parameters -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 space-y-3">
           <!-- Dynamic selects -->
-          <div id="selects" class="grid grid-cols-2 gap-2"></div>
+          <div id="selects" class="space-y-3"></div>
 
           <!-- Keywords & Avoid -->
-          <div class="grid grid-cols-2 gap-2">
+          <div class="space-y-3">
             <div>
               <label class="block font-medium mb-1 text-sm" for="keywords">Klíčová slova</label>
               <input id="keywords" name="keywords" type="text" placeholder="odděluj čárkou" class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
@@ -122,8 +115,7 @@
             <label class="block font-medium mb-1 text-sm" for="deadline">Deadline / Embargo</label>
             <input id="deadline" name="deadline" type="date" class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
           </div>
-        </form>
-      </div>
+        </div>
 
       <!-- RIGHT COLUMN: Output -->
       <div class="bg-white rounded-2xl shadow-lg p-6 output-sticky space-y-4">
@@ -164,7 +156,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </form>
   </div>
 
   <!-- Footer -->
@@ -197,8 +189,10 @@ selectsConfig.forEach(cfg => {
     return `<option value="${value}" ${idx===0?'selected':''}>${o}</option>`;
   }).join('');
   div.innerHTML = `
-    <label class="block font-medium mb-1 text-sm" for="${cfg.id}">${cfg.label}</label>
-    <select id="${cfg.id}" name="${cfg.id}" class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">${optionsHtml}</select>
+    <div>
+      <label class="block font-medium mb-1 text-sm" for="${cfg.id}">${cfg.label}</label>
+      <select id="${cfg.id}" name="${cfg.id}" class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">${optionsHtml}</select>
+    </div>
   `;
   document.getElementById('selects').appendChild(div);
 });
