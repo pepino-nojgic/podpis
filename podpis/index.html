@@ -516,7 +516,7 @@
             status.innerHTML = '<div class="spinner"></div> Kontroluji...';
             
             photoCheckTimeout = setTimeout(() => {
-                const url = `https://cdn.medialist.cz/profil/ML_1080x1080px_${filename}.png`;
+                const url = `https://cdn.medialist.cz/podpis_img/profil/ML_1080x1080px_${filename}.png`;
                 const img = new Image();
                 let timeoutId;
                 let completed = false;
@@ -682,7 +682,7 @@
             // Fotka HTML - pouze pokud je showPhoto true
             const photoHTML = showPhoto ? `
     <td valign="top" style="padding:0 6px 6px 0;">
-      <img src="https://cdn.medialist.cz/profil/ML_1080x1080px_${data.photoFilename}.png" width="105" height="105" alt="${data.firstName} ${data.lastName}" style="display:block;border:0;outline:0;width:105px;height:105px;background:${bgColor};-ms-interpolation-mode:bicubic;">
+      <img src="https://cdn.medialist.cz/podpis_img/profil/ML_1080x1080px_${data.photoFilename}.png" width="105" height="105" alt="${data.firstName} ${data.lastName}" style="display:block;border:0;outline:0;width:105px;height:105px;background:${bgColor};-ms-interpolation-mode:bicubic;">
     </td>` : '';
 
             return `<!-- EMAIL SIGNATURE · media:list · ${data.firstName} ${data.lastName} -->
