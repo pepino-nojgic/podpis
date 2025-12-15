@@ -15,8 +15,26 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    /* Desktop two-column layout */
+    @media (min-width: 1024px) {
+      .desktop-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        max-width: 1600px;
+        align-items: start;
+      }
+
+      .output-sticky {
+        position: sticky;
+        top: 2rem;
+        max-height: calc(100vh - 4rem);
+      }
+    }
+  </style>
 </head>
-<body class="min-h-screen bg-gray-100 flex flex-col items-center py-8">
+<body class="min-h-screen bg-gray-100 py-6 px-4">
 
   <!-- Logout Button -->
   <a href="/cdn-cgi/access/logout?return_to=https://cdn.medialist.cz/" class="fixed top-5 right-5 z-50 inline-flex items-center gap-2 px-4 py-2 bg-white text-blue-600 border-2 border-blue-600 rounded-lg font-semibold text-sm hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl">
@@ -24,128 +42,126 @@
     <span>Odhlásit</span>
   </a>
 
-  <!-- Breadcrumb -->
-  <div class="w-full max-w-3xl mb-4">
-    <a href="../index.html" class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-      </svg>
-      Zpět na Media:list nástroje
-    </a>
-  </div>
+  <!-- Container -->
+  <div class="max-w-7xl mx-auto">
+    <!-- Breadcrumb -->
+    <div class="mb-4">
+      <a href="../index.html" class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Zpět na Media:list nástroje
+      </a>
+    </div>
 
-  <!-- Header -->
-  <header class="flex items-center space-x-3 mb-8">
-    <img src="https://cdn.medialist.cz/ml_logo.png" alt="Media:list logo" class="h-12 w-auto" />
-  </header>
+    <!-- Header -->
+    <header class="flex items-center space-x-3 mb-6">
+      <img src="https://cdn.medialist.cz/ml_logo.png" alt="Media:list logo" class="h-10 w-auto" />
+      <h1 class="text-3xl font-extrabold text-blue-600" style="font-family:'Poppins', sans-serif">🪄 PR Prompt Generátor</h1>
+    </header>
 
-  <!-- Card -->
-  <div class="w-full max-w-3xl bg-white rounded-2xl shadow-lg p-8 space-y-6">
-    <h1 class="text-4xl font-extrabold text-blue-600" style="font-family:'Poppins', sans-serif">🪄 PR Prompt Generátor</h1>
+    <!-- Two-column grid for desktop, single column for mobile -->
+    <div class="desktop-grid">
+      <!-- LEFT COLUMN: Form -->
+      <div class="bg-white rounded-2xl shadow-lg p-6 space-y-4">
+        <!-- Manual toggle -->
+        <details class="bg-blue-50/50 p-3 rounded-lg shadow-inner">
+          <summary class="cursor-pointer font-medium text-blue-600 text-sm">
+            Jak generátor používat? (Rozklikni)
+          </summary>
 
-    <!-- Manual toggle -->
-    <details class="bg-blue-50/50 p-4 rounded-lg shadow-inner mb-4">
-      <summary class="cursor-pointer font-medium text-blue-600">
-        Jak generátor používat? (Rozklikni)
-      </summary>
+          <div class="mt-3 space-y-1 text-xs leading-relaxed">
+            <p>Vyplň <strong>Zadání</strong> (povinné) a další pole. „Neuvedeno" znamená, že se do promptu nezahrne.</p>
+            <ul class="list-disc list-inside space-y-0.5 text-xs">
+              <li><strong>Zadání</strong> – hlavní instrukce</li>
+              <li><strong>Kontext</strong> – podklady</li>
+              <li><strong>Tón</strong> – styl vyjadřování</li>
+              <li><strong>Formát</strong> – typ výstupu</li>
+              <li><strong>Audience/Kanál/Cíl</strong> – cílení</li>
+            </ul>
+          </div>
+        </details>
 
-      <div class="mt-4 space-y-2 text-sm leading-relaxed">
-        <p>
-          Vyplň <strong>Zadání</strong> (povinné) a libovolná další pole.
-          Hodnoty <em>„Neuvedeno"</em> znamenají, že se do promptu nezahrnou.
-          Klikni <strong>Vygenerovat prompt</strong> → text se objeví níže,
-          tlačítkem <em>Kopírovat</em> ho dostaneš do schránky.
-        </p>
+        <!-- Form -->
+        <form id="promptForm" class="space-y-3">
+          <!-- Tlačítka -->
+          <div class="flex flex-wrap gap-2">
+            <button id="resetFormBtn" type="button" class="px-4 py-1.5 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">Nový</button>
+            <button id="importTemplatesBtn" type="button" class="px-4 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Import</button>
+          </div>
 
-        <ul class="list-disc list-inside space-y-1">
-          <li><strong>Zadání</strong> – hlavní instrukce, co má výstup obsahovat.</li>
-          <li><strong>Kontext</strong> – doplňkové podklady (citace, data, pozadí).</li>
-          <li><strong>Tón</strong> – styl vyjadřování (formální, hravý…).</li>
-          <li><strong>Formát</strong> – typ výstupu (tisková zpráva, post…).</li>
-          <li><strong>Audience</strong> – pro koho text je.</li>
-          <li><strong>Kanál</strong> – kde se bude publikovat.</li>
-          <li><strong>Cíl</strong> – komunikační záměr.</li>
-          <li><strong>Rozsah</strong> – délka textu.</li>
-          <li><strong>CTA</strong> – výzva k akci.</li>
-          <li><strong>Jazyk &amp; Region</strong> – lokalizace.</li>
-          <li><strong>Klíčová slova</strong> – povinné termíny.</li>
-          <li><strong>Nezmiňovat</strong> – zakázané fráze.</li>
-          <li><strong>Formát výstupu</strong> – Plain text / Markdown / HTML.</li>
-          <li><strong>Deadline / Embargo</strong> – datum zveřejnění či interní termín.</li>
-        </ul>
+          <!-- Zadání -->
+          <div>
+            <label class="block font-medium mb-1 text-sm" for="mainText">Zadání *</label>
+            <textarea id="mainText" name="mainText" required rows="3" placeholder="Co má výstup obsahovat..." class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+          </div>
+
+          <!-- Kontext -->
+          <div>
+            <label class="block font-medium mb-1 text-sm" for="contextText">Kontext</label>
+            <textarea id="contextText" name="contextText" rows="2" placeholder="Produktové detaily, citace..." class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+          </div>
+
+          <!-- Dynamic selects -->
+          <div id="selects" class="grid grid-cols-2 gap-2"></div>
+
+          <!-- Keywords & Avoid -->
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-medium mb-1 text-sm" for="keywords">Klíčová slova</label>
+              <input id="keywords" name="keywords" type="text" placeholder="odděluj čárkou" class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+            <div>
+              <label class="block font-medium mb-1 text-sm" for="avoid">Nezmiňovat</label>
+              <input id="avoid" name="avoid" type="text" placeholder="zakázané..." class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+          </div>
+
+          <!-- Deadline -->
+          <div>
+            <label class="block font-medium mb-1 text-sm" for="deadline">Deadline / Embargo</label>
+            <input id="deadline" name="deadline" type="date" class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+
+          <!-- Template buttons -->
+          <div class="flex flex-wrap gap-2">
+            <button id="saveTemplateBtn" type="button" class="px-4 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Uložit šablonu</button>
+            <button id="loadTemplateBtn" type="button" class="px-4 py-1.5 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">Načíst</button>
+            <button id="exportTemplatesBtn" type="button" class="px-4 py-1.5 text-sm bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">Export</button>
+          </div>
+
+          <button type="submit" class="w-full px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">Vygenerovat prompt</button>
+        </form>
       </div>
-    </details>
 
-    <!-- Form -->
-    <form id="promptForm" class="space-y-6">
-
-      <!-- Tlačítka nad polem Zadání -->
-      <div class="flex flex-wrap gap-3 mb-6">
-        <button id="resetFormBtn" type="button" class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">Nový formulář</button>
-        <button id="importTemplatesBtn" type="button" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Importovat šablony</button>
-      </div>
-
-      <!-- Zadání -->
-      <div>
-        <label class="block font-medium mb-1" for="mainText">Zadání *</label>
-        <textarea id="mainText" name="mainText" required rows="4" placeholder="Co má výstup obsahovat, tone of voice, délka…" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
-      </div>
-
-      <!-- Kontext -->
-      <div>
-        <label class="block font-medium mb-1" for="contextText">Kontext (volitelný)</label>
-        <textarea id="contextText" name="contextText" rows="3" placeholder="Např. produktové detaily, citace klienta, klíčová sdělení…" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
-      </div>
-
-      <!-- Dynamic selects -->
-      <div id="selects" class="grid md:grid-cols-2 gap-4"></div>
-
-      <!-- Keywords & Avoid -->
-      <div class="grid md:grid-cols-2 gap-4">
-        <div>
-          <label class="block font-medium mb-1" for="keywords">Klíčová slova</label>
-          <input id="keywords" name="keywords" type="text" placeholder="odděluj čárkou" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+      <!-- RIGHT COLUMN: Output -->
+      <div class="bg-white rounded-2xl shadow-lg p-6 output-sticky">
+        <div id="outputSection" class="hidden">
+          <label class="block font-medium mb-2 text-sm">Hotový prompt</label>
+          <textarea id="output" rows="20" readonly class="w-full p-3 text-sm border rounded-lg bg-gray-50 font-mono"></textarea>
+          <div class="flex flex-wrap gap-2 mt-3">
+            <button id="copyBtn" class="px-4 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">Kopírovat</button>
+            <button id="openGptBtn" class="px-4 py-2 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition flex items-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M37.5324 16.8707C37.9808 15.5241 38.1363 14.0974 37.9886 12.6859C37.8409 11.2744 37.3934 9.91076 36.676 8.68622C35.6126 6.83404 33.9882 5.3676 32.0373 4.4985C30.0864 3.62941 27.9098 3.40259 25.8215 3.85078C24.8796 2.7893 23.7219 1.94125 22.4257 1.36341C21.1295 0.785575 19.7249 0.491269 18.3058 0.500197C16.1708 0.495044 14.0893 1.16803 12.3614 2.42214C10.6335 3.67624 9.34853 5.44666 8.6917 7.47815C7.30085 7.76286 5.98686 8.3414 4.8377 9.17505C3.68854 10.0087 2.73073 11.0782 2.02839 12.312C0.956464 14.1591 0.498905 16.2988 0.721698 18.4228C0.944492 20.5467 1.83612 22.5449 3.268 24.1293C2.81966 25.4759 2.66413 26.9026 2.81182 28.3141C2.95951 29.7256 3.40701 31.0892 4.12437 32.3138C5.18791 34.1659 6.8123 35.6322 8.76321 36.5013C10.7141 37.3704 12.8907 37.5973 14.9789 37.1492C15.9208 38.2107 17.0786 39.0587 18.3747 39.6366C19.6709 40.2144 21.0755 40.5087 22.4946 40.4998C24.6307 40.5054 26.7133 39.8321 28.4418 38.5772C30.1704 37.3223 31.4556 35.5506 32.1119 33.5179C33.5027 33.2332 34.8167 32.6547 35.9659 31.821C37.115 30.9874 38.0728 29.9178 38.7752 28.684C39.8458 26.8371 40.3023 24.6979 40.0789 22.5748C39.8556 20.4517 38.9639 18.4544 37.5324 16.8707ZM22.4978 37.8849C20.7443 37.8874 19.0459 37.2733 17.6994 36.1501C17.7601 36.117 17.8666 36.0586 17.936 36.0161L25.9004 31.4156C26.1003 31.3019 26.2663 31.137 26.3813 30.9378C26.4964 30.7386 26.5563 30.5124 26.5549 30.2825V19.0542L29.9213 20.998C29.9389 21.0068 29.9541 21.0198 29.9656 21.0359C29.977 21.052 29.9842 21.0707 29.9867 21.0902V30.3889C29.9842 32.375 29.1946 34.2791 27.7909 35.6841C26.3872 37.0892 24.4838 37.8806 22.4978 37.8849ZM6.39227 31.0064C5.51397 29.4888 5.19742 27.7107 5.49804 25.9832C5.55718 26.0187 5.66048 26.0818 5.73461 26.1244L13.699 30.7248C13.8975 30.8408 14.1233 30.902 14.3532 30.902C14.583 30.902 14.8088 30.8408 15.0073 30.7248L24.731 25.1103V28.9979C24.7321 29.0177 24.7283 29.0376 24.7199 29.0556C24.7115 29.0736 24.6988 29.0893 24.6829 29.1012L16.6317 33.7497C14.9096 34.7416 12.8643 35.0097 10.9447 34.4954C9.02506 33.9811 7.3598 32.7263 6.39227 31.0064ZM5.55723 13.2296C6.40842 11.7807 7.77432 10.7079 9.36426 10.2391C9.36947 10.3216 9.36668 10.4122 9.37456 10.5218L9.76875 19.6813C9.77046 19.8952 9.84903 20.1009 9.99072 20.2581C10.1324 20.4153 10.3275 20.5139 10.5413 20.5377L20.5859 21.9936V25.7892C20.5856 25.8091 20.5806 25.8287 20.5714 25.8457C20.5622 25.8628 20.5489 25.8769 20.5334 25.8866L12.5309 30.5017C11.0101 31.3203 9.23286 31.5637 7.53078 31.1812C5.82869 30.7987 4.32607 29.8179 3.28834 28.4191C2.25061 27.0203 1.74328 25.2861 1.85682 23.5363C1.97036 21.7865 2.69717 20.1324 3.91245 18.8991C5.12772 17.6659 6.7519 16.938 8.50169 16.8717C10.2515 16.8053 11.9395 17.4057 13.2607 18.5542C13.2288 18.6409 13.1676 18.7708 13.1283 18.8583L5.16381 23.458C4.96536 23.5739 4.81131 23.7439 4.72259 23.9469C4.63387 24.1499 4.61514 24.3751 4.66896 24.589L5.55723 13.2296ZM31.3808 15.6221C31.4364 15.5594 31.4808 15.4896 31.5121 15.4146C31.5434 15.3395 31.5613 15.2601 31.5747 15.179L33.0877 5.87905C33.3025 5.89464 33.5306 5.90128 33.7542 5.92273C34.6245 6.05296 35.4448 6.40678 36.1347 6.9516C36.8246 7.49642 37.3635 8.2156 37.6946 9.03782C38.0258 9.86005 38.1383 10.7586 38.0219 11.6428C37.9055 12.5269 37.5639 13.3672 37.0291 14.0778C36.4944 14.7884 35.7842 15.3484 34.9693 15.7003C34.1544 16.0522 33.262 16.1842 32.3863 16.0834C31.5106 15.9825 30.6776 15.6522 29.9733 15.1261L31.3808 15.6221ZM9.68041 3.6427C11.3929 2.42307 13.5273 1.88075 15.6317 2.13509C17.736 2.38943 19.6778 3.42518 21.0634 5.01759C21.0357 5.08023 20.9835 5.16997 20.9397 5.2428L12.984 9.84275C12.7848 9.95989 12.6202 10.1253 12.5049 10.3251C12.3896 10.5248 12.3289 10.7518 12.3289 10.9825L12.315 20.0855L8.97212 18.1698C8.95453 18.1606 8.93393 18.1575 8.91379 18.1609C8.89366 18.1643 8.87483 18.1741 8.85995 18.1889C8.84508 18.2038 8.83475 18.2232 8.83078 18.2437C8.82681 18.2643 8.82936 18.2851 8.83806 18.3032L7.91175 7.16731C7.9135 7.14572 7.91621 7.12428 7.91985 7.10305C8.45033 5.8914 9.00599 4.7461 9.68041 3.6427ZM20.5543 30.4309L12.5714 25.8761C12.397 25.7708 12.1946 25.7116 11.9855 25.7061C11.7763 25.7006 11.5696 25.7489 11.3883 25.8451L3.45217 30.4309C3.00172 29.1147 2.95103 27.6929 3.30781 26.3476C3.66459 25.0023 4.41168 23.799 5.44581 22.881C5.47339 22.9027 5.52161 22.9387 5.56783 22.9693L13.5564 27.5564C13.7549 27.6742 13.9805 27.7368 14.2105 27.7368C14.4404 27.7368 14.666 27.6742 14.8645 27.5564L24.5882 21.9419L27.9549 23.8862C27.9704 23.8956 27.9827 23.9097 27.9901 23.9267C27.9975 23.9437 27.9997 23.9626 27.9962 23.9808C27.9928 23.999 27.9839 24.0155 27.9708 24.0283C27.9577 24.041 27.941 24.0493 27.9228 24.0519L18.234 25.5636C17.8034 25.641 17.3875 25.7929 17.012 26.0113C16.6365 26.2297 16.3084 26.5104 16.0446 26.8401C15.7807 27.1699 15.5861 27.5422 15.4713 27.9391C15.3565 28.336 15.3236 28.7502 15.3744 29.1583C15.4252 29.5664 15.5587 29.9596 15.7671 30.3177C15.9755 30.6758 16.2544 30.9921 16.5879 31.2496C16.9215 31.5071 17.303 31.7008 17.7104 31.8204C18.1178 31.94 18.5435 31.9834 18.9675 31.9481C19.2975 31.9221 19.621 31.8444 19.9254 31.7179C20.2298 31.5915 20.5103 31.4184 20.7542 31.2057C20.7833 31.1795 20.8058 31.148 20.8209 31.113C20.836 31.078 20.8431 31.0404 20.8418 31.0026V30.4309H20.5543Z" fill="currentColor"></path>
+              </svg>
+              <span class="hidden lg:inline">Otevřít ChatGPT</span>
+            </button>
+          </div>
         </div>
-        <div>
-          <label class="block font-medium mb-1" for="avoid">Nezmiňovat</label>
-          <input id="avoid" name="avoid" type="text" placeholder="zakázané výrazy…" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-        </div>
-      </div>
-
-      <!-- Deadline -->
-      <div>
-        <label class="block font-medium mb-1" for="deadline">Deadline / Embargo</label>
-        <input id="deadline" name="deadline" type="date" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-      </div>
-
-      <!-- Template buttons -->
-      <div id="templateButtonsContainer" class="flex flex-wrap gap-3 mt-3">
-        <button id="saveTemplateBtn" type="button" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Uložit jako šablonu</button>
-        <button id="loadTemplateBtn" type="button" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">Načíst šablonu</button>
-        <button id="exportTemplatesBtn" type="button" class="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">Exportovat šablony</button>
-      </div>
-
-      <button type="submit" class="w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">Vygenerovat prompt</button>
-    </form>
-
-    <!-- Output -->
-    <div id="outputSection" class="hidden">
-      <label class="block font-medium mb-1">Hotový prompt</label>
-      <textarea id="output" rows="10" readonly class="w-full p-3 border rounded-lg bg-gray-50"></textarea>
-      <div class="flex flex-wrap gap-3 mt-3">
-        <button id="copyBtn" class="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">Kopírovat</button>
-        <button id="openGptBtn" class="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition flex items-center gap-2">
-          <svg width="20" height="20" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5">
-            <path d="M37.5324 16.8707C37.9808 15.5241 38.1363 14.0974 37.9886 12.6859C37.8409 11.2744 37.3934 9.91076 36.676 8.68622C35.6126 6.83404 33.9882 5.3676 32.0373 4.4985C30.0864 3.62941 27.9098 3.40259 25.8215 3.85078C24.8796 2.7893 23.7219 1.94125 22.4257 1.36341C21.1295 0.785575 19.7249 0.491269 18.3058 0.500197C16.1708 0.495044 14.0893 1.16803 12.3614 2.42214C10.6335 3.67624 9.34853 5.44666 8.6917 7.47815C7.30085 7.76286 5.98686 8.3414 4.8377 9.17505C3.68854 10.0087 2.73073 11.0782 2.02839 12.312C0.956464 14.1591 0.498905 16.2988 0.721698 18.4228C0.944492 20.5467 1.83612 22.5449 3.268 24.1293C2.81966 25.4759 2.66413 26.9026 2.81182 28.3141C2.95951 29.7256 3.40701 31.0892 4.12437 32.3138C5.18791 34.1659 6.8123 35.6322 8.76321 36.5013C10.7141 37.3704 12.8907 37.5973 14.9789 37.1492C15.9208 38.2107 17.0786 39.0587 18.3747 39.6366C19.6709 40.2144 21.0755 40.5087 22.4946 40.4998C24.6307 40.5054 26.7133 39.8321 28.4418 38.5772C30.1704 37.3223 31.4556 35.5506 32.1119 33.5179C33.5027 33.2332 34.8167 32.6547 35.9659 31.821C37.115 30.9874 38.0728 29.9178 38.7752 28.684C39.8458 26.8371 40.3023 24.6979 40.0789 22.5748C39.8556 20.4517 38.9639 18.4544 37.5324 16.8707ZM22.4978 37.8849C20.7443 37.8874 19.0459 37.2733 17.6994 36.1501C17.7601 36.117 17.8666 36.0586 17.936 36.0161L25.9004 31.4156C26.1003 31.3019 26.2663 31.137 26.3813 30.9378C26.4964 30.7386 26.5563 30.5124 26.5549 30.2825V19.0542L29.9213 20.998C29.9389 21.0068 29.9541 21.0198 29.9656 21.0359C29.977 21.052 29.9842 21.0707 29.9867 21.0902V30.3889C29.9842 32.375 29.1946 34.2791 27.7909 35.6841C26.3872 37.0892 24.4838 37.8806 22.4978 37.8849ZM6.39227 31.0064C5.51397 29.4888 5.19742 27.7107 5.49804 25.9832C5.55718 26.0187 5.66048 26.0818 5.73461 26.1244L13.699 30.7248C13.8975 30.8408 14.1233 30.902 14.3532 30.902C14.583 30.902 14.8088 30.8408 15.0073 30.7248L24.731 25.1103V28.9979C24.7321 29.0177 24.7283 29.0376 24.7199 29.0556C24.7115 29.0736 24.6988 29.0893 24.6829 29.1012L16.6317 33.7497C14.9096 34.7416 12.8643 35.0097 10.9447 34.4954C9.02506 33.9811 7.3598 32.7263 6.39227 31.0064ZM5.55723 13.2296C6.40842 11.7807 7.77432 10.7079 9.36426 10.2391C9.36947 10.3216 9.36668 10.4122 9.37456 10.5218L9.76875 19.6813C9.77046 19.8952 9.84903 20.1009 9.99072 20.2581C10.1324 20.4153 10.3275 20.5139 10.5413 20.5377L20.5859 21.9936V25.7892C20.5856 25.8091 20.5806 25.8287 20.5714 25.8457C20.5622 25.8628 20.5489 25.8769 20.5334 25.8866L12.5309 30.5017C11.0101 31.3203 9.23286 31.5637 7.53078 31.1812C5.82869 30.7987 4.32607 29.8179 3.28834 28.4191C2.25061 27.0203 1.74328 25.2861 1.85682 23.5363C1.97036 21.7865 2.69717 20.1324 3.91245 18.8991C5.12772 17.6659 6.7519 16.938 8.50169 16.8717C10.2515 16.8053 11.9395 17.4057 13.2607 18.5542C13.2288 18.6409 13.1676 18.7708 13.1283 18.8583L5.16381 23.458C4.96536 23.5739 4.81131 23.7439 4.72259 23.9469C4.63387 24.1499 4.61514 24.3751 4.66896 24.589L5.55723 13.2296ZM31.3808 15.6221C31.4364 15.5594 31.4808 15.4896 31.5121 15.4146C31.5434 15.3395 31.5613 15.2601 31.5747 15.179L33.0877 5.87905C33.3025 5.89464 33.5306 5.90128 33.7542 5.92273C34.6245 6.05296 35.4448 6.40678 36.1347 6.9516C36.8246 7.49642 37.3635 8.2156 37.6946 9.03782C38.0258 9.86005 38.1383 10.7586 38.0219 11.6428C37.9055 12.5269 37.5639 13.3672 37.0291 14.0778C36.4944 14.7884 35.7842 15.3484 34.9693 15.7003C34.1544 16.0522 33.262 16.1842 32.3863 16.0834C31.5106 15.9825 30.6776 15.6522 29.9733 15.1261L31.3808 15.6221ZM9.68041 3.6427C11.3929 2.42307 13.5273 1.88075 15.6317 2.13509C17.736 2.38943 19.6778 3.42518 21.0634 5.01759C21.0357 5.08023 20.9835 5.16997 20.9397 5.2428L12.984 9.84275C12.7848 9.95989 12.6202 10.1253 12.5049 10.3251C12.3896 10.5248 12.3289 10.7518 12.3289 10.9825L12.315 20.0855L8.97212 18.1698C8.95453 18.1606 8.93393 18.1575 8.91379 18.1609C8.89366 18.1643 8.87483 18.1741 8.85995 18.1889C8.84508 18.2038 8.83475 18.2232 8.83078 18.2437C8.82681 18.2643 8.82936 18.2851 8.83806 18.3032L7.91175 7.16731C7.9135 7.14572 7.91621 7.12428 7.91985 7.10305C8.45033 5.8914 9.00599 4.7461 9.68041 3.6427ZM20.5543 30.4309L12.5714 25.8761C12.397 25.7708 12.1946 25.7116 11.9855 25.7061C11.7763 25.7006 11.5696 25.7489 11.3883 25.8451L3.45217 30.4309C3.00172 29.1147 2.95103 27.6929 3.30781 26.3476C3.66459 25.0023 4.41168 23.799 5.44581 22.881C5.47339 22.9027 5.52161 22.9387 5.56783 22.9693L13.5564 27.5564C13.7549 27.6742 13.9805 27.7368 14.2105 27.7368C14.4404 27.7368 14.666 27.6742 14.8645 27.5564L24.5882 21.9419L27.9549 23.8862C27.9704 23.8956 27.9827 23.9097 27.9901 23.9267C27.9975 23.9437 27.9997 23.9626 27.9962 23.9808C27.9928 23.999 27.9839 24.0155 27.9708 24.0283C27.9577 24.041 27.941 24.0493 27.9228 24.0519L18.234 25.5636C17.8034 25.641 17.3875 25.7929 17.012 26.0113C16.6365 26.2297 16.3084 26.5104 16.0446 26.8401C15.7807 27.1699 15.5861 27.5422 15.4713 27.9391C15.3565 28.336 15.3236 28.7502 15.3744 29.1583C15.4252 29.5664 15.5587 29.9596 15.7671 30.3177C15.9755 30.6758 16.2544 30.9921 16.5879 31.2496C16.9215 31.5071 17.303 31.7008 17.7104 31.8204C18.1178 31.94 18.5435 31.9834 18.9675 31.9481C19.2975 31.9221 19.621 31.8444 19.9254 31.7179C20.2298 31.5915 20.5103 31.4184 20.7542 31.2057C20.7833 31.1795 20.8058 31.148 20.8209 31.113C20.836 31.078 20.8431 31.0404 20.8418 31.0026V30.4309H20.5543Z" fill="currentColor"></path>
+        <div id="outputPlaceholder" class="text-center py-16 text-gray-400">
+          <svg class="mx-auto h-16 w-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
           </svg>
-          Zkopírovat a otevřít ChatGPT
-        </button>
+          <p class="font-medium">Vyplň formulář a vygeneruj prompt</p>
+          <p class="text-sm mt-1">Výsledek se zobrazí zde</p>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Footer -->
-  <footer class="mt-10 text-sm text-gray-500">&copy; <span id="year"></span> Media:list – PR Prompt Generator</footer>
+  <footer class="mt-6 text-center text-sm text-gray-500">&copy; <span id="year"></span> Media:list – PR Prompt Generator</footer>
 
 <script>
 // Aktuální rok ve footru
@@ -174,8 +190,8 @@ selectsConfig.forEach(cfg => {
     return `<option value="${value}" ${idx===0?'selected':''}>${o}</option>`;
   }).join('');
   div.innerHTML = `
-    <label class="block font-medium mb-1" for="${cfg.id}">${cfg.label}</label>
-    <select id="${cfg.id}" name="${cfg.id}" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">${optionsHtml}</select>
+    <label class="block font-medium mb-1 text-sm" for="${cfg.id}">${cfg.label}</label>
+    <select id="${cfg.id}" name="${cfg.id}" class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">${optionsHtml}</select>
   `;
   document.getElementById('selects').appendChild(div);
 });
@@ -252,7 +268,7 @@ form.addEventListener('submit', e => {
 
   output.value = prompt.trim();
   outputSection.classList.remove('hidden');
-  output.scrollIntoView({behavior:'smooth'});
+  document.getElementById('outputPlaceholder').classList.add('hidden');
 
   showFeedback('Prompt byl úspěšně vygenerován!', 'success');
 });
@@ -427,6 +443,7 @@ document.getElementById('resetFormBtn').addEventListener('click', () => {
     form.reset();
     output.value = '';
     outputSection.classList.add('hidden');
+    document.getElementById('outputPlaceholder').classList.remove('hidden');
     localStorage.removeItem('prFormAutosave');
     showFeedback('Formulář byl vymazán', 'success');
   }
