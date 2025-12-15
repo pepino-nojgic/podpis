@@ -666,14 +666,14 @@
             const bgColor = 'transparent';
             const textColor = '#222222';
             const accentColor = '#0B64D8';
-            const logoUrl = 'https://cdn.medialist.cz/ml_logo.png';
+            const logoUrl = 'https://cdn.medialist.cz/podpis_img/ml_logo.png';
 
             const phoneDisplay = formatPhone(data.phone);
             const phoneHref = data.phone.replace(/\D/g, '');
 
             const linkedInHTML = showLinkedIn && data.linkedin ? `
           <td valign="middle" style="padding:2px 6px 2px 0;">
-            <img src="https://cdn.medialist.cz/LinkedIN.png" width="17" height="17" alt="LinkedIn" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
+            <img src="https://cdn.medialist.cz/podpis_img/LinkedIN.png" width="17" height="17" alt="LinkedIn" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
           </td>
           <td valign="middle" style="padding:2px 0 2px 0;">
             <a href="https://www.linkedin.com/in/${data.linkedin}/" style="color:${textColor};text-decoration:none !important;text-decoration-line:none !important;">linkedin.com/in/${data.linkedin}/</a>
@@ -698,13 +698,13 @@
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:11px;line-height:16px;color:${textColor};font-weight:400;mso-line-height-rule:exactly;">
         <tr>
           <td valign="middle" style="padding:2px 6px 2px 0;">
-            <img src="https://cdn.medialist.cz/Phone.png" width="17" height="17" alt="Telefon" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
+            <img src="https://cdn.medialist.cz/podpis_img/Phone.png" width="17" height="17" alt="Telefon" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
           </td>
           <td valign="middle" style="padding:2px 14px 2px 0;white-space:nowrap;">
             <a href="tel:+420${phoneHref}" style="color:${textColor};text-decoration:none !important;text-decoration-line:none !important;">${phoneDisplay}</a>
           </td>
           <td valign="middle" style="padding:2px 6px 2px 0;">
-            <img src="https://cdn.medialist.cz/Mail.png" width="17" height="17" alt="E-mail" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
+            <img src="https://cdn.medialist.cz/podpis_img/Mail.png" width="17" height="17" alt="E-mail" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
           </td>
           <td valign="middle" style="padding:2px 0 2px 0;">
             <a href="mailto:${data.email}" style="color:${textColor};text-decoration:none !important;text-decoration-line:none !important;">${data.email}</a>
@@ -717,7 +717,7 @@
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:11px;line-height:16px;color:${textColor};font-weight:400;mso-line-height-rule:exactly;">
         <tr>
           <td valign="middle" style="padding:2px 6px 2px 0;">
-            <img src="https://cdn.medialist.cz/web.png" width="17" height="17" alt="Web" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
+            <img src="https://cdn.medialist.cz/podpis_img/web.png" width="17" height="17" alt="Web" style="display:block;width:17px;height:17px;border:0;outline:0;-ms-interpolation-mode:bicubic;">
           </td>
           <td valign="middle" style="padding:2px 14px 2px 0;">
             <a href="https://medialist.cz" style="color:${textColor};text-decoration:none !important;text-decoration-line:none !important;">medialist.cz</a>
@@ -727,7 +727,7 @@
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-top:5px;">
         <tr>
           <td style="padding:4px 0 0 0;">
-            <img src="${logoUrl}" width="98" alt="media:list logo" style="display:block;border:0;outline:0;width:98px;height:auto;background:${bgColor};-ms-interpolation-mode:bicubic;">
+            <img src="https://cdn.medialist.cz/podpis_img/ml_logo.png" width="98" alt="media:list logo" style="display:block;border:0;outline:0;width:98px;height:auto;background:${bgColor};-ms-interpolation-mode:bicubic;">
           </td>
         </tr>
       </table>
