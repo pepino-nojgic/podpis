@@ -20,9 +20,9 @@
     @media (min-width: 1024px) {
       .desktop-grid {
         display: grid;
-        grid-template-columns: 1.2fr 1fr 1.2fr;
+        grid-template-columns: 1.5fr 1.3fr 1.2fr;
         gap: 1.5rem;
-        max-width: 1800px;
+        max-width: 2000px;
         align-items: start;
       }
 
@@ -30,6 +30,13 @@
         position: sticky;
         top: 2rem;
         max-height: calc(100vh - 4rem);
+        overflow-y: auto;
+      }
+
+      .params-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
       }
     }
   </style>
@@ -43,7 +50,7 @@
   </a>
 
   <!-- Container -->
-  <div class="max-w-7xl mx-auto">
+  <div class="mx-auto" style="max-width: 2000px;">
     <!-- Breadcrumb -->
     <div class="mb-4">
       <a href="../index.html" class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
@@ -83,23 +90,23 @@
           <!-- Zadání -->
           <div>
             <label class="block font-medium mb-1 text-sm" for="mainText">Zadání *</label>
-            <textarea id="mainText" name="mainText" required rows="12" placeholder="Co má výstup obsahovat..." class="w-full p-3 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+            <textarea id="mainText" name="mainText" required rows="15" placeholder="Co má výstup obsahovat..." class="w-full p-3 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
           </div>
 
           <!-- Kontext -->
           <div>
             <label class="block font-medium mb-1 text-sm" for="contextText">Kontext</label>
-            <textarea id="contextText" name="contextText" rows="8" placeholder="Produktové detaily, citace..." class="w-full p-3 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+            <textarea id="contextText" name="contextText" rows="12" placeholder="Produktové detaily, citace..." class="w-full p-3 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
           </div>
         </div>
 
         <!-- MIDDLE COLUMN: Parameters -->
-        <div class="bg-white rounded-2xl shadow-lg p-6 space-y-3">
-          <!-- Dynamic selects -->
-          <div id="selects" class="space-y-3"></div>
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+          <!-- Dynamic selects in 2 columns -->
+          <div id="selects" class="params-grid mb-3"></div>
 
-          <!-- Keywords & Avoid -->
-          <div class="space-y-3">
+          <!-- Keywords, Avoid & Deadline in 2 columns -->
+          <div class="params-grid">
             <div>
               <label class="block font-medium mb-1 text-sm" for="keywords">Klíčová slova</label>
               <input id="keywords" name="keywords" type="text" placeholder="odděluj čárkou" class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
@@ -108,12 +115,10 @@
               <label class="block font-medium mb-1 text-sm" for="avoid">Nezmiňovat</label>
               <input id="avoid" name="avoid" type="text" placeholder="zakázané..." class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
             </div>
-          </div>
-
-          <!-- Deadline -->
-          <div>
-            <label class="block font-medium mb-1 text-sm" for="deadline">Deadline / Embargo</label>
-            <input id="deadline" name="deadline" type="date" class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            <div class="col-span-2">
+              <label class="block font-medium mb-1 text-sm" for="deadline">Deadline / Embargo</label>
+              <input id="deadline" name="deadline" type="date" class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            </div>
           </div>
         </div>
 
@@ -126,7 +131,7 @@
 
         <div id="outputSection" class="hidden">
           <label class="block font-medium mb-2 text-sm">Hotový prompt</label>
-          <textarea id="output" rows="18" readonly class="w-full p-3 text-sm border rounded-lg bg-gray-50 font-mono"></textarea>
+          <textarea id="output" rows="22" readonly class="w-full p-3 text-sm border rounded-lg bg-gray-50 font-mono"></textarea>
           <div class="flex flex-wrap gap-2 mt-3">
             <button id="copyBtn" class="px-4 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">Kopírovat</button>
             <button id="openGptBtn" class="px-4 py-2 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition flex items-center gap-2">
@@ -189,10 +194,8 @@ selectsConfig.forEach(cfg => {
     return `<option value="${value}" ${idx===0?'selected':''}>${o}</option>`;
   }).join('');
   div.innerHTML = `
-    <div>
-      <label class="block font-medium mb-1 text-sm" for="${cfg.id}">${cfg.label}</label>
-      <select id="${cfg.id}" name="${cfg.id}" class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">${optionsHtml}</select>
-    </div>
+    <label class="block font-medium mb-1 text-sm" for="${cfg.id}">${cfg.label}</label>
+    <select id="${cfg.id}" name="${cfg.id}" class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">${optionsHtml}</select>
   `;
   document.getElementById('selects').appendChild(div);
 });
