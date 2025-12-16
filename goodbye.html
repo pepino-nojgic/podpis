@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Odhlášen | Media:list</title>
+    <link rel="icon" type="image/svg+xml" href="https://cdn.medialist.cz/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .logo-pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-gray-100 min-h-screen flex items-center justify-center p-6">
+    <div class="bg-white rounded-2xl shadow-2xl p-12 max-w-md w-full text-center fade-in">
+        <!-- Logo -->
+        <div class="mb-8">
+            <img src="https://cdn.medialist.cz/podpis_img/ml_logo.png" alt="Media:list" class="h-16 mx-auto logo-pulse">
+        </div>
+
+        <!-- Success Icon -->
+        <div class="mb-6">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Main Message -->
+        <h1 class="text-2xl font-bold text-gray-800 mb-3">Byl jsi úspěšně odhlášen</h1>
+        <p class="text-gray-600 mb-8">Děkujeme za použití Media:list nástrojů</p>
+
+        <!-- Buttons -->
+        <div class="space-y-3">
+            <button onclick="tryCloseWindow()"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl">
+                Zavřít záložku
+            </button>
+            <a href="https://cdn.medialist.cz/"
+                class="block w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-all duration-300">
+                Zpět na přihlášení
+            </a>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="mt-8 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-500">
+                Pokud se chceš přihlásit znovu, stačí kliknout na "Zpět na přihlášení"
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function tryCloseWindow() {
+            // Pokus o zavření okna
+            window.close();
+
+            // Pokud to nefunguje (okno zůstane otevřené), zobrazíme info
+            setTimeout(() => {
+                // Zjistíme, zda je okno stále otevřené
+                if (!window.closed) {
+                    alert('Tuto záložku nelze automaticky zavřít.\n\nProsím, zavři ji ručně nebo klikni na "Zpět na přihlášení".');
+                }
+            }, 100);
+        }
+
+        // Automatický pokus o zavření při načtení (pro případy kdy to může fungovat)
+        window.addEventListener('load', () => {
+            // Malý delay pro lepší UX - uživatel vidí stránku
+            setTimeout(() => {
+                // Kontrola, zda bylo okno otevřeno přes window.open (pak lze zavřít)
+                if (window.opener !== null) {
+                    window.close();
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
