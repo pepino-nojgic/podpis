@@ -277,14 +277,20 @@
                         </div>
                     </div>
 
-                    <div class="mt-6 flex gap-3">
-                        <button id="copyBtn" onclick="copyToClipboard()" 
-                            class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors">
-                            📋 Kopírovat
-                        </button>
+                    <div class="mt-6 space-y-2">
+                        <div class="flex gap-2">
+                            <button id="copyBtn" onclick="copyToClipboard()"
+                                class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-colors text-sm">
+                                📋 Kopírovat<br><span class="text-xs opacity-75">(Gmail/Outlook)</span>
+                            </button>
+                            <button id="copyMacBtn" onclick="copyForMac()"
+                                class="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-colors text-sm">
+                                🍎 Kopírovat<br><span class="text-xs opacity-75">(Apple Mail)</span>
+                            </button>
+                        </div>
                         <button id="downloadBtn" onclick="downloadHTML()"
-                            class="flex-1 bg-gray-700 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors">
-                            💾 Stáhnout
+                            class="w-full bg-gray-700 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                            💾 Stáhnout HTML
                         </button>
                     </div>
                     
@@ -333,12 +339,20 @@
                     
                     <div class="mt-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
                         <h3 class="font-semibold text-blue-900 mb-3">💡 Jak na to?</h3>
-                        <div class="space-y-2 text-sm text-blue-800">
-                            <p><strong>1.</strong> Vyplň své údaje výše</p>
-                            <p><strong>2.</strong> Klikni na "Kopírovat"</p>
-                            <p><strong>3.</strong> V Gmailu (web): Nastavení → Podpis → vlož (Cmd+V / Ctrl+V)</p>
-                            <p><strong>4.</strong> V Outlooku: Soubor → Možnosti → Podpisy → vlož (Ctrl+V)</p>
-                            <p class="text-xs mt-2 opacity-75">💡 V Apple Mail (Mac) může být nutné podpis stáhnout a vložit ručně</p>
+                        <div class="space-y-3 text-sm text-blue-800">
+                            <div>
+                                <p class="font-semibold mb-1">📧 Pro Gmail a Outlook:</p>
+                                <p>1. Klikni na <strong>"📋 Kopírovat (Gmail/Outlook)"</strong></p>
+                                <p>2. V Gmailu (web): Nastavení → Podpis → vlož (Cmd+V / Ctrl+V)</p>
+                                <p>3. V Outlooku: Soubor → Možnosti → Podpisy → vlož (Ctrl+V)</p>
+                            </div>
+                            <div class="border-t border-blue-200 pt-2">
+                                <p class="font-semibold mb-1">🍎 Pro Apple Mail (Mac):</p>
+                                <p>1. Klikni na <strong>"🍎 Kopírovat (Apple Mail)"</strong></p>
+                                <p>2. Jdi do Mail → Nastavení → Podpisy</p>
+                                <p>3. Vlož podpis přes Cmd+V</p>
+                                <p class="text-xs mt-1 opacity-75">💡 Pokud nefunguje, použij tlačítko "Stáhnout HTML" a otevři soubor v prohlížeči</p>
+                            </div>
                         </div>
                     </div>
 
@@ -494,6 +508,7 @@
             }
 
             document.getElementById('copyBtn').disabled = !allValid;
+            document.getElementById('copyMacBtn').disabled = !allValid;
             document.getElementById('downloadBtn').disabled = !allValid;
             return allValid;
         }
@@ -786,6 +801,57 @@
                     console.error('Fallback clipboard method also failed:', fallbackError);
                     showToast('Nepodařilo se zkopírovat. Zkus to prosím znovu.', 'error');
                 }
+            }
+
+            // Only add to history if copy was successful
+            if (copySuccess) {
+                try {
+                    await addToHistory();
+                } catch(historyError) {
+                    console.error('Failed to add to history:', historyError);
+                    // Don't show error to user - history is not critical
+                }
+            }
+
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            validateAllFields(); // Znovu validovat pro obnovení správného stavu tlačítka
+        }
+
+        async function copyForMac() {
+            if(!validateAllFields(true)) {
+                showToast('Vyplň všechna pole správně', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('copyMacBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Kopíruji...';
+
+            let copySuccess = false;
+
+            try {
+                // Pro Apple Mail: kopírování z renderovaného preview (zachová vizuální formátování)
+                const previewDiv = document.getElementById('preview');
+                const range = document.createRange();
+                range.selectNodeContents(previewDiv);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+
+                const success = document.execCommand('copy');
+                selection.removeAllRanges();
+
+                if (success) {
+                    copySuccess = true;
+                    showToast('Podpis zkopírován pro Mac!', 'success');
+                } else {
+                    throw new Error('Copy command failed');
+                }
+            } catch(e) {
+                console.error('Mac copy method failed:', e);
+                showToast('Nepodařilo se zkopírovat. Zkus použít tlačítko "Stáhnout".', 'error');
             }
 
             // Only add to history if copy was successful
