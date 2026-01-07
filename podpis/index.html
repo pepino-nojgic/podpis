@@ -336,9 +336,9 @@
                         <div class="space-y-2 text-sm text-blue-800">
                             <p><strong>1.</strong> Vyplň své údaje výše</p>
                             <p><strong>2.</strong> Klikni na "Kopírovat"</p>
-                            <p><strong>3. Gmail (web):</strong> Nastavení → Podpis → vlož (Cmd+V / Ctrl+V)</p>
-                            <p><strong>4. Apple Mail (Mac):</strong> Nastavení → Podpisy → vlož (Cmd+V) - zkopíruje se automaticky s formátováním</p>
-                            <p><strong>5. Outlook (Windows):</strong> Soubor → Možnosti → Podpisy → vlož (Ctrl+V)</p>
+                            <p><strong>3.</strong> V Gmailu (web): Nastavení → Podpis → vlož (Cmd+V / Ctrl+V)</p>
+                            <p><strong>4.</strong> V Outlooku: Soubor → Možnosti → Podpisy → vlož (Ctrl+V)</p>
+                            <p class="text-xs mt-2 opacity-75">💡 V Apple Mail (Mac) může být nutné podpis stáhnout a vložit ručně</p>
                         </div>
                     </div>
 
@@ -755,37 +755,35 @@
             btn.disabled = true;
             btn.innerHTML = '⏳ Kopíruji...';
 
+            const html = generateSignatureHTML();
             let copySuccess = false;
 
             try {
-                // Metoda 1: Kopírování z preview divu (funguje lépe v Apple Mail)
-                const previewDiv = document.getElementById('preview');
-                const range = document.createRange();
-                range.selectNodeContents(previewDiv);
-                const selection = window.getSelection();
-                selection.removeAllRanges();
-                selection.addRange(range);
-
-                const success = document.execCommand('copy');
-                selection.removeAllRanges();
-
-                if (success) {
-                    copySuccess = true;
-                    showToast('Podpis zkopírován!', 'success');
-                } else {
-                    throw new Error('Copy command failed');
-                }
+                await navigator.clipboard.write([new ClipboardItem({'text/html': new Blob([html], {type:'text/html'})})]);
+                copySuccess = true;
+                showToast('Podpis zkopírován!', 'success');
             } catch(e) {
-                console.warn('Preview copy failed, trying HTML string method:', e);
+                console.warn('Modern clipboard API failed, trying fallback:', e);
 
-                // Metoda 2: Fallback - kopírování HTML stringu (pro starší prohlížeče)
+                // Fallback method for older browsers
                 try {
-                    const html = generateSignatureHTML();
-                    await navigator.clipboard.write([new ClipboardItem({'text/html': new Blob([html], {type:'text/html'})})]);
-                    copySuccess = true;
-                    showToast('Podpis zkopírován!', 'success');
+                    const ta = document.createElement('textarea');
+                    ta.value = html;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    const success = document.execCommand('copy');
+                    document.body.removeChild(ta);
+
+                    if (success) {
+                        copySuccess = true;
+                        showToast('Podpis zkopírován! (režim kompatibility)', 'success');
+                    } else {
+                        throw new Error('Copy command failed');
+                    }
                 } catch(fallbackError) {
-                    console.error('All clipboard methods failed:', fallbackError);
+                    console.error('Fallback clipboard method also failed:', fallbackError);
                     showToast('Nepodařilo se zkopírovat. Zkus to prosím znovu.', 'error');
                 }
             }
