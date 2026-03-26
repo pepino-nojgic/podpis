@@ -18,7 +18,7 @@ import time
 from datetime import datetime
 from email.mime.text import MIMEText
 
-import google.generativeai as genai
+from google import genai
 import gspread
 import undetected_chromedriver as uc
 from google.oauth2.service_account import Credentials
@@ -104,11 +104,10 @@ class ProductionAIMonitoring:
         self.drive_service = build('drive', 'v3', credentials=creds)
 
         # Gemini AI client
-        self.gemini_model = None
+        self.gemini_client = None
         if gemini_api_key:
-            genai.configure(api_key=gemini_api_key)
-            self.gemini_model = genai.GenerativeModel('gemini-2.0-flash')
-            logger.info("Gemini API initialized (gemini-2.0-flash)")
+            self.gemini_client = genai.Client(api_key=gemini_api_key)
+            logger.info("Gemini API initialized (gemini-2.0-flash, new SDK)")
         else:
             logger.warning("Gemini API key not provided - using basic keyword sentiment analysis")
 
@@ -138,6 +137,39 @@ class ProductionAIMonitoring:
                     pass
         logger.warning("Nepodařilo se detekovat verzi Chrome, používám výchozí None")
         return None
+
+    def _detect_login_wall(self, driver, platform_name: str) -> bool:
+        """Vrací True pokud platforma zobrazuje přihlašovací stránku místo chatu."""
+        try:
+            url = driver.current_url
+            if platform_name == 'Gemini' and 'accounts.google.com' in url:
+                return True
+            if platform_name == 'ChatGPT' and any(x in url for x in ['/auth/', 'auth0.com']):
+                return True
+            login_selectors = {
+                'ChatGPT': ['input[name="username"]', 'button[data-testid="login-button"]'],
+                'Perplexity': ['button[data-testid="sign-in"]', 'a[href*="/login"]'],
+                'Gemini': ['input[type="email"]'],
+            }
+            for sel in login_selectors.get(platform_name, []):
+                if driver.find_elements(By.CSS_SELECTOR, sel):
+                    return True
+        except Exception:
+            pass
+        return False
+
+    def _sheets_retry(self, func, *args, max_retries=3, **kwargs):
+        """Opakuje Google Sheets/Drive API volání při dočasné chybě."""
+        for attempt in range(max_retries):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    wait = 5 * (2 ** attempt)  # 5s, 10s, 20s
+                    logger.warning(f"API chyba (pokus {attempt + 1}/{max_retries}): {e}. Čekám {wait}s...")
+                    time.sleep(wait)
+                else:
+                    raise
 
     def _create_driver(self, headless: bool = False) -> uc.Chrome:
         """Vytvoří nový undetected Chrome driver."""
@@ -218,7 +250,7 @@ class ProductionAIMonitoring:
 
     def analyze_with_gemini(self, response_text: str, platform_name: str, keyword: str) -> dict:
         """Analyzuje odpověď AI platformy pomocí Gemini API."""
-        if not self.gemini_model:
+        if not self.gemini_client:
             return self._analyze_basic(response_text)
 
         try:
@@ -230,7 +262,9 @@ class ProductionAIMonitoring:
                 response_text=trimmed_text,
             )
 
-            response = self.gemini_model.generate_content(prompt)
+            response = self.gemini_client.models.generate_content(
+                model='gemini-2.0-flash', contents=prompt
+            )
             raw = response.text.strip()
 
             if raw.startswith('```'):
@@ -526,6 +560,10 @@ class ProductionAIMonitoring:
             driver.get(platform['url'])
             time.sleep(5)
 
+            # Detect login wall
+            if self._detect_login_wall(driver, platform_name):
+                raise Exception(f"LOGIN_WALL: {platform_name} vyžaduje ruční přihlášení")
+
             # Dismiss popupy
             self._dismiss_popups(driver, platform_name)
 
@@ -618,7 +656,7 @@ class ProductionAIMonitoring:
                 komentar,            # G: Komentáře
                 screenshot_link,     # H: Odkaz na screen
             ]
-            worksheet.append_row(row, value_input_option='USER_ENTERED')
+            self._sheets_retry(worksheet.append_row, row, value_input_option='USER_ENTERED')
             row_number = len(worksheet.get_all_values())
 
             # Formátování
@@ -706,7 +744,15 @@ class ProductionAIMonitoring:
                     lines.append(f"         {r['status']}")
             lines.append("")
 
-        errors = [r for r in self.results if r['status'] != 'OK']
+        login_walls = [r for r in self.results if 'LOGIN_WALL' in r['status']]
+        if login_walls:
+            platforms = list(dict.fromkeys(r['platform'] for r in login_walls))
+            lines.append("=== NUTNÁ RUČNÍ AKCE ===")
+            for p in platforms:
+                lines.append(f"  ⚠️  Přihlaste se ručně na {p} v prohlížeči na monitorovacím PC")
+            lines.append("")
+
+        errors = [r for r in self.results if r['status'] != 'OK' and 'LOGIN_WALL' not in r['status']]
         if errors:
             lines.append("=== CHYBY ===")
             for r in errors:
