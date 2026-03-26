@@ -117,25 +117,26 @@ class ProductionAIMonitoring:
         logger.info("Google API clients initialized successfully")
 
     def _get_chrome_version(self) -> int:
-        """Zjistí hlavní verzi nainstalovaného Chrome."""
-        paths = [
-            r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-            r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
-        ]
-        for path in paths:
-            if os.path.exists(path):
+        """Zjistí hlavní verzi nainstalovaného Chrome (Windows registry)."""
+        try:
+            import winreg
+            key_paths = [
+                r"SOFTWARE\Google\Chrome\BLBeacon",
+                r"SOFTWARE\WOW6432Node\Google\Chrome\BLBeacon",
+            ]
+            for key_path in key_paths:
                 try:
-                    output = subprocess.check_output(
-                        [path, "--version"], stderr=subprocess.STDOUT
-                    ).decode()
-                    match = re.search(r"(\d+)\.", output)
-                    if match:
-                        version = int(match.group(1))
-                        logger.info(f"Detekována verze Chrome: {version}")
-                        return version
+                    key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path)
+                    version, _ = winreg.QueryValueEx(key, "version")
+                    winreg.CloseKey(key)
+                    major = int(version.split(".")[0])
+                    logger.info(f"Detekována verze Chrome z registry: {major} ({version})")
+                    return major
                 except Exception:
-                    pass
-        logger.warning("Nepodařilo se detekovat verzi Chrome, používám výchozí None")
+                    continue
+        except ImportError:
+            pass
+        logger.warning("Nepodařilo se detekovat verzi Chrome, undetected_chromedriver zvolí sám")
         return None
 
     def _detect_login_wall(self, driver, platform_name: str) -> bool:
