@@ -122,27 +122,50 @@ class ProductionAIMonitoring:
         logger.info("Google API clients initialized successfully")
 
     def _get_chrome_version(self) -> int:
-        """Zjistí hlavní verzi nainstalovaného Chrome (Windows registry)."""
+        """Zjistí hlavní verzi Chrome. Metody: PowerShell → registry → fallback 146."""
+        chrome_paths = [
+            r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+            r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        ]
+
+        # 1. PowerShell - čte verzi přímo z exe souboru
+        for path in chrome_paths:
+            if os.path.exists(path):
+                try:
+                    cmd = f'(Get-Item "{path}").VersionInfo.ProductVersion'
+                    output = subprocess.check_output(
+                        ['powershell', '-NoProfile', '-Command', cmd],
+                        timeout=10, stderr=subprocess.DEVNULL
+                    ).decode().strip()
+                    major = int(output.split('.')[0])
+                    logger.info(f"Detekována verze Chrome (PowerShell): {major} ({output})")
+                    return major
+                except Exception as e:
+                    logger.warning(f"PowerShell detekce selhala: {e}")
+
+        # 2. Windows registry
         try:
             import winreg
-            key_paths = [
-                r"SOFTWARE\Google\Chrome\BLBeacon",
-                r"SOFTWARE\WOW6432Node\Google\Chrome\BLBeacon",
-            ]
-            for key_path in key_paths:
-                try:
-                    key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path)
-                    version, _ = winreg.QueryValueEx(key, "version")
-                    winreg.CloseKey(key)
-                    major = int(version.split(".")[0])
-                    logger.info(f"Detekována verze Chrome z registry: {major} ({version})")
-                    return major
-                except Exception:
-                    continue
+            for hive in [winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER]:
+                for key_path in [
+                    r"SOFTWARE\Google\Chrome\BLBeacon",
+                    r"SOFTWARE\WOW6432Node\Google\Chrome\BLBeacon",
+                ]:
+                    try:
+                        key = winreg.OpenKey(hive, key_path)
+                        version, _ = winreg.QueryValueEx(key, "version")
+                        winreg.CloseKey(key)
+                        major = int(version.split(".")[0])
+                        logger.info(f"Detekována verze Chrome (registry): {major} ({version})")
+                        return major
+                    except Exception:
+                        continue
         except ImportError:
             pass
-        logger.warning("Nepodařilo se detekovat verzi Chrome, undetected_chromedriver zvolí sám")
-        return None
+
+        # 3. Hardcoded fallback
+        logger.warning("Nepodařilo se detekovat verzi Chrome automaticky, používám fallback 146")
+        return 146
 
     def _detect_login_wall(self, driver, platform_name: str) -> bool:
         """Vrací True pokud platforma zobrazuje přihlašovací stránku místo chatu."""
