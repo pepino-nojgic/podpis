@@ -39,9 +39,14 @@ from config import (
     WORKSHEET_NAMES,
 )
 
+_log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'monitoring.log')
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler(_log_file, encoding='utf-8'),
+    ]
 )
 logger = logging.getLogger(__name__)
 
